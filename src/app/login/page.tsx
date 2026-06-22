@@ -11,19 +11,11 @@ export default function LoginPage() {
         Masuk ke akun Anda
       </h1>
       <p className="font-body text-[var(--color-ink)]/80 mb-8">
-        Untuk tugas kuliah ini, login cukup dengan email akun demo. Untuk
-        produksi, sistem akan menggunakan Auth.js dengan bcrypt.
+        Untuk tugas kuliah ini, login menggunakan email dan password. Untuk
+        demo, akun seed bisa login tanpa password (email saja).
       </p>
 
       <LoginForm />
-
-      <p className="font-mono text-[11px] mt-8 text-[var(--color-ink)]/60">
-        Akun demo (lihat seed):{" "}
-        <code>editor@anyaman.id</code>,{" "}
-        <code>kontributor@anyaman.id</code>,{" "}
-        <code>pembaca@anyaman.id</code>,{" "}
-        <code>daniel@anyaman.id</code>.
-      </p>
 
       <p className="mt-6">
         <Link
