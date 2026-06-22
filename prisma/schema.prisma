@@ -1,0 +1,131 @@
+// prisma/schema.prisma
+// SQLite for local dev, PostgreSQL for production (Supabase).
+// Enum diganti string + default karena SQLite tidak support enum.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String?
+  role          String    @default("READER") // READER | CONTRIBUTOR | EDITOR
+  createdAt     DateTime  @default(now())
+
+  articles      Article[]
+  replies       Reply[]
+  reactions     Reaction[]
+  reports       Report[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  articles  Article[]
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  articles  ArticleTag[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([articleId, tagId])
+}
+
+model Article {
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  title           String
+  dek             String
+  body            String
+  status          String         @default("PUBLISHED") // DRAFT | PUBLISHED | ARCHIVED
+  authorId        String
+  categoryId      String
+  publishedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  author          User           @relation(fields: [authorId], references: [id])
+  category        Category       @relation(fields: [categoryId], references: [id])
+  tags            ArticleTag[]
+  viewpoints      BalancedViewpoint[]
+  thread          Thread?
+}
+
+model BalancedViewpoint {
+  id          String   @id @default(cuid())
+  articleId   String
+  label       String
+  summary     String
+  sourceUrl   String?
+  order       Int      @default(0)
+
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+model Thread {
+  id          String    @id @default(cuid())
+  title       String
+  articleId   String?   @unique
+  createdAt   DateTime  @default(now())
+  isLocked    Boolean   @default(false)
+
+  article     Article?  @relation(fields: [articleId], references: [id])
+  replies     Reply[]
+}
+
+model Reply {
+  id          String     @id @default(cuid())
+  threadId    String
+  authorId    String
+  parentId    String?
+  content     String
+  sourceUrl   String?
+  createdAt   DateTime   @default(now())
+  isHidden    Boolean    @default(false)
+
+  thread      Thread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author      User       @relation(fields: [authorId], references: [id])
+  parent      Reply?     @relation("ReplyToReply", fields: [parentId], references: [id])
+  children    Reply[]    @relation("ReplyToReply")
+  reactions   Reaction[]
+  reports     Report[]
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  replyId   String
+  userId    String
+  type      String   // STRONG_ARGUMENT | NEEDS_SOURCE | OTHER_PERSPECTIVE
+
+  reply     Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([replyId, userId, type])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  replyId     String
+  reporterId  String
+  reason      String
+  status      String   @default("PENDING") // PENDING | REVIEWED | DISMISSED | ACTIONED
+  createdAt   DateTime @default(now())
+
+  reply       Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  reporter    User     @relation(fields: [reporterId], references: [id])
+}

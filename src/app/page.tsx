@@ -1,103 +1,171 @@
-import Image from "next/image";
+import Link from "next/link";
+import { WeaveDivider } from "@/components/weave/WeaveDivider";
+import { Badge } from "@/components/ui/Badge";
+import { ArticleCard } from "@/components/artikel/ArticleCard";
+import { getPublishedArticles } from "@/lib/articles";
+import { formatTanggal } from "@/lib/format";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+export const revalidate = 60;
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+export default async function Home() {
+  const articles = await getPublishedArticles(20);
+  if (articles.length === 0) {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-16">
+        <p className="font-body text-lg">Belum ada artikel yang diterbitkan.</p>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    );
+  }
+
+  const [hero, ...rest] = articles;
+  const heroThread = hero._count.replies;
+
+  // ambil thread dengan reply paling banyak sebagai "titik temu"
+  const titikTemu = [...articles]
+    .filter((a) => a._count.replies > 0)
+    .sort((a, b) => b._count.replies - a._count.replies)
+    .slice(0, 3);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      {/* HERO dua-benang — sesuai wireframe DESIGN.md §3.3 */}
+      <section className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16">
+        <article className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Badge tone="tarum">{hero.category.name}</Badge>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
+              {formatTanggal(hero.publishedAt)}
+            </span>
+          </div>
+          <h1 className="font-display text-[42px] leading-[1.05] tracking-tight md:text-[52px]">
+            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-tarum)] transition-colors">
+              {hero.title}
+            </Link>
+          </h1>
+          <p className="font-body text-lg leading-relaxed text-[var(--color-ink)]/85 max-w-[68ch]">
+            {hero.dek}
+          </p>
+          <div className="mt-4 max-w-[68ch]">
+            <WeaveDivider variant="tarum" />
+          </div>
+          <Link
+            href={`/artikel/${hero.slug}`}
+            className="font-mono text-sm uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-4 mt-3 self-start"
+          >
+            Baca selengkapnya →
+          </Link>
+        </article>
+
+        <aside className="flex flex-col gap-4 border-l border-[var(--color-line)] pl-8">
+          <div className="flex items-center gap-3">
+            <Badge tone="giri">Forum · Titik Temu</Badge>
+          </div>
+          <h2 className="font-display text-[24px] leading-tight">
+            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-giri)] transition-colors">
+              Diskusi yang sedang produktif di portal ini
+            </Link>
+          </h2>
+          <p className="font-body text-base text-[var(--color-ink)]/80">
+            {heroThread} balasan masuk untuk artikel &ldquo;{hero.title}&rdquo;.
+            Forum ini memprioritaskan argumen yang mengkritik substansi, bukan
+            yang paling banyak disukai.
+          </p>
+          <div className="flex items-center gap-4 font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
+            <span>{heroThread} balasan</span>
+            <span aria-hidden>·</span>
+            <span>Bahasa sopan, kritik tajam</span>
+          </div>
+          <Link
+            href={`/artikel/${hero.slug}#diskusi`}
+            className="font-mono text-sm uppercase tracking-wider text-[var(--color-giri)] hover:underline underline-offset-4 mt-3 self-start"
+          >
+            Masuk diskusi →
+          </Link>
+        </aside>
+      </section>
+
+      {/* TITIK TEMU — artikel dengan diskusi paling konstruktif */}
+      {titikTemu.length > 0 && (
+        <section className="mt-20">
+          <header className="flex items-end justify-between mb-6">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-kunyit)]">
+                Titik Temu
+              </p>
+              <h2 className="font-display text-[24px] mt-1">
+                Artikel dengan diskusi paling konstruktif
+              </h2>
+            </div>
+          </header>
+          <div className="grid gap-6 md:grid-cols-3">
+            {titikTemu.map((a) => (
+              <ArticleCard
+                key={a.id}
+                slug={a.slug}
+                title={a.title}
+                dek={a.dek}
+                categoryName={a.category.name}
+                publishedAt={a.publishedAt}
+                replyCount={a._count.replies}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* GRID BERITA + SIDEBAR */}
+      <section className="mt-20 grid gap-12 lg:grid-cols-[2fr_1fr]">
+        <div>
+          <h2 className="font-display text-[24px] mb-6 pb-3 border-b border-[var(--color-line)]">
+            Berita terbaru
+          </h2>
+          <div className="space-y-8">
+            {rest.slice(0, 6).map((a) => (
+              <ArticleCard
+                key={a.id}
+                slug={a.slug}
+                title={a.title}
+                dek={a.dek}
+                categoryName={a.category.name}
+                publishedAt={a.publishedAt}
+                replyCount={a._count.replies}
+              />
+            ))}
+          </div>
+        </div>
+        <aside>
+          <h2 className="font-display text-[18px] mb-6 pb-3 border-b border-[var(--color-line)]">
+            Kategori
+          </h2>
+          <ul className="space-y-3 font-mono text-sm">
+            <li>
+              <Link href="/kategori/politik" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
+                Politik →
+              </Link>
+            </li>
+            <li>
+              <Link href="/kategori/sosial-budaya" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
+                Sosial-Budaya →
+              </Link>
+            </li>
+            <li>
+              <Link href="/kategori/toleransi-kebhinekaan" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
+                Toleransi &amp; Kebhinekaan →
+              </Link>
+            </li>
+            <li>
+              <Link href="/kategori/klarifikasi-cek-fakta" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
+                Klarifikasi/Cek Fakta →
+              </Link>
+            </li>
+            <li>
+              <Link href="/kategori/opini" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
+                Opini →
+              </Link>
+            </li>
+          </ul>
+        </aside>
+      </section>
+    </main>
   );
 }
