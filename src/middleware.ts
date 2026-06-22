@@ -4,7 +4,8 @@ import type { NextRequest } from "next/server";
 // Security headers sesuai ARCHITECTURE.md §7 + PERFORMANCE.md §3.
 // Hanya berjalan di runtime Node (bukan edge) agar CSP tetap ketat.
 
-export function middleware(request: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function middleware(_request: NextRequest) {
   const response = NextResponse.next();
 
   response.headers.set("X-Frame-Options", "DENY");

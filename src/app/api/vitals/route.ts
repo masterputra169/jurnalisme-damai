@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console -- production logging to Vercel log drain
     console.log(
       JSON.stringify({
         at: new Date().toISOString(),
