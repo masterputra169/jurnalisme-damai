@@ -109,6 +109,8 @@ export default async function Home() {
                   publishedAt={a.publishedAt}
                   replyCount={a._count.replies}
                   variant={i > 0 ? "compact" : "default"}
+                  isSyndicated={a.isSyndicated}
+                  sourceName={a.sourceName}
                 />
               ))}
             </div>
@@ -142,6 +144,8 @@ export default async function Home() {
                   categoryName={a.category.name}
                   publishedAt={a.publishedAt}
                   replyCount={a._count.replies}
+                  isSyndicated={a.isSyndicated}
+                  sourceName={a.sourceName}
                 />
               ))}
             </div>

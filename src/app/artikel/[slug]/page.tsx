@@ -87,6 +87,21 @@ export default async function ArticlePage({ params }: PageProps) {
             <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/50">
               oleh {article.author.name}
             </p>
+
+            {article.sourceUrl && (
+              <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-[var(--color-kunyit)]">
+                Ringkasan dari{" "}
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="underline underline-offset-2 hover:text-[var(--color-tarum)] transition-colors"
+                >
+                  {article.sourceName || "sumber asli"}
+                  <span className="ml-0.5 text-[9px]">↗</span>
+                </a>
+              </p>
+            )}
           </header>
 
           <div className="prose-editor font-body text-[18px] leading-[1.7] text-[var(--color-ink)]/90 max-w-[68ch]">

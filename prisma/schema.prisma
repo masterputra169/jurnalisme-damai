@@ -83,6 +83,11 @@ model Article {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
+  // RSS syndication fields
+  sourceUrl       String?
+  sourceName      String?
+  isSyndicated    Boolean        @default(false)
+
   author          User           @relation(fields: [authorId], references: [id])
   category        Category       @relation(fields: [categoryId], references: [id])
   tags            ArticleTag[]

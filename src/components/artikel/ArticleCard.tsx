@@ -10,6 +10,8 @@ interface ArticleCardProps {
   publishedAt: Date | null;
   replyCount?: number;
   variant?: "default" | "compact";
+  isSyndicated?: boolean;
+  sourceName?: string | null;
 }
 
 export function ArticleCard({
@@ -20,6 +22,8 @@ export function ArticleCard({
   publishedAt,
   replyCount = 0,
   variant = "default",
+  isSyndicated = false,
+  sourceName,
 }: ArticleCardProps) {
   return (
     <article
@@ -29,6 +33,11 @@ export function ArticleCard({
     >
       <div className="flex items-center gap-3 mb-2">
         <Badge tone="tarum">{categoryName}</Badge>
+        {isSyndicated && (
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-kunyit)]">
+            Ringkasan: {sourceName || "RSS"}
+          </span>
+        )}
         <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
           {formatTanggalPendek(publishedAt)}
         </span>

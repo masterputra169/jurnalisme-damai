@@ -9,6 +9,8 @@ export type ArticleListItem = {
   category: { name: string; slug: string };
   author: { name: string };
   _count: { replies: number };
+  isSyndicated: boolean;
+  sourceName: string | null;
 };
 
 export async function getPublishedArticles(limit?: number) {
@@ -31,6 +33,8 @@ export async function getPublishedArticles(limit?: number) {
     category: a.category,
     author: a.author,
     _count: { replies: a.thread?._count.replies ?? 0 },
+    isSyndicated: a.isSyndicated,
+    sourceName: a.sourceName,
   }));
 }
 
