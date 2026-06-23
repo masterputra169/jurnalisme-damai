@@ -18,7 +18,7 @@ export async function AccountMenu() {
   const isStaff = user.role === "EDITOR" || user.role === "CONTRIBUTOR";
 
   return (
-    <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider">
+    <div className="flex items-center gap-6 font-mono text-xs uppercase tracking-wider">
       <span className="text-[var(--color-ink)]/80 hidden sm:inline">
         {user.name}
       </span>
