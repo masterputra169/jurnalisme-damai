@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Process 3 articles per batch — rewrite is slow (~8s each)
+// Process 3 articles per batch — rewrite is slow (~12s each)
 const BATCH_SIZE = 3;
 
 export const runtime = "nodejs";
@@ -20,26 +20,19 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Only fetch articles with short/missing body
+    // Fetch syndicated articles, filter short body in code
     const articles = await prisma.article.findMany({
-      where: {
-        isSyndicated: true,
-        OR: [
-          { body: null },
-          { body: "" },
-          { body: { lt: "z" } }, // filter: will check length in code
-        ],
-      },
+      where: { isSyndicated: true },
       select: { id: true, title: true, dek: true, body: true, sourceUrl: true },
       orderBy: { createdAt: "asc" },
-      take: BATCH_SIZE * 5, // fetch more, filter short ones in code
+      take: BATCH_SIZE * 10,
     });
 
-    // Filter to only short/missing bodies
-    const shortArticles = articles.filter((a) => !a.body || a.body.length < 300).slice(0, BATCH_SIZE);
+    // Filter to only short bodies
+    const shortArticles = articles.filter((a) => a.body.length < 300).slice(0, BATCH_SIZE);
 
     let updated = 0;
-    let errors = 0;
+    let skipped = 0;
 
     for (const article of shortArticles) {
       const rewritten = await rewriteArticle(article.title, article.dek || "", article.sourceUrl || "");
@@ -50,21 +43,19 @@ export async function GET(request: Request) {
         });
         updated++;
       } else {
-        errors++;
+        skipped++;
       }
     }
 
-    const remaining = await prisma.article.count({
-      where: { isSyndicated: true },
-    });
+    const articlesWithShortBody = articles.filter((a) => a.body.length < 300).length;
 
     return NextResponse.json({
       ok: true,
       batch: shortArticles.length,
       updated,
-      errors,
-      remaining,
-      message: remaining > 0 ? `Call again to process ${remaining} more articles` : "All articles processed",
+      skipped,
+      remainingArticlesWithShortBody: articlesWithShortBody,
+      message: shortArticles.length > 0 ? `Call again to process more articles` : "All articles have sufficient body",
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
