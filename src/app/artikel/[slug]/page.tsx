@@ -12,16 +12,6 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const { prisma } = await import("@/lib/prisma");
-  const articles = await prisma.article.findMany({
-    where: { status: "PUBLISHED", isSyndicated: false },
-    select: { slug: true },
-    take: 20,
-  });
-  return articles.map((a) => ({ slug: a.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
@@ -39,9 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export const revalidate = 300;
-
-export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
