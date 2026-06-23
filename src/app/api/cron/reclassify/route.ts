@@ -117,7 +117,7 @@ async function rewriteWithAI(title: string, description: string, sourceUrl: stri
           { role: "system", content: systemPrompt },
           { role: "user", content: `Judul: ${title}\nRingkasan: ${description || "(tidak ada)"}\nURL: ${sourceUrl}\n\nTulis ulang berita ini.` },
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.7,
       }),
       signal: controller.signal,
