@@ -149,9 +149,17 @@ export default async function Home() {
             <ul className="space-y-4 font-mono text-sm">
               {[
                 { slug: "politik", label: "Politik" },
-                { slug: "sosial-budaya", label: "Sosial-Budaya" },
-                { slug: "toleransi-kebhinekaan", label: "Toleransi & Kebhinekaan" },
-                { slug: "klarifikasi-cek-fakta", label: "Klarifikasi/Cek Fakta" },
+                { slug: "sosial-budaya", label: "Sosial Budaya" },
+                { slug: "ekonomi", label: "Ekonomi" },
+                { slug: "hukum-kriminal", label: "Hukum & Kriminal" },
+                { slug: "teknologi-sains", label: "Teknologi & Sains" },
+                { slug: "olahraga", label: "Olahraga" },
+                { slug: "kesehatan", label: "Kesehatan" },
+                { slug: "pendidikan", label: "Pendidikan" },
+                { slug: "lingkungan-bencana", label: "Lingkungan & Bencana" },
+                { slug: "hiburan", label: "Hiburan" },
+                { slug: "internasional", label: "Internasional" },
+                { slug: "klarifikasi-cek-fakta", label: "Klarifikasi / Cek Fakta" },
                 { slug: "opini", label: "Opini" },
               ].map((cat) => (
                 <li key={cat.slug}>
