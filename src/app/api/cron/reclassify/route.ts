@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { detectCategory } from "@/lib/rss";
 
-// Process 20 articles per batch — categorize only
-const BATCH_SIZE = 20;
+// Process 3 articles per batch — AI categorize is slow (~3s each)
+// Vercel Hobby timeout = 10s, cannot exceed
+const BATCH_SIZE = 3;
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,11 +14,13 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    const isVercelCron = request.headers.get("x-vercel-cron");
-    if (!isVercelCron) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // CRON_SECRET is mandatory — reject if not configured
+  if (!cronSecret) {
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
