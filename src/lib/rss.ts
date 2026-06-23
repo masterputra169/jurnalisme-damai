@@ -152,7 +152,7 @@ const AI_CATEGORIES_PROMPT = VALID_CATEGORIES
   .map((c) => `- "${c.slug}" (${c.label})`)
   .join("\n");
 
-async function detectCategoryByAI(title: string, description: string): Promise<string | null> {
+export async function detectCategoryByAI(title: string, description: string): Promise<string | null> {
   const apiKey = process.env.LLM_API_KEY;
   const apiBase = process.env.LLM_API_BASE_URL; // e.g. https://openrouter.ai/api/v1
   const aiModel = process.env.LLM_MODEL || "anthropic/claude-sonnet-4-20250514";
@@ -226,7 +226,7 @@ Balas HANYA dengan slug kategori (misal: "politik"), tanpa penjelasan tambahan.`
 
 // ── Main categorization (AI → Keywords fallback) ──
 
-async function detectCategory(title: string, description: string): Promise<string> {
+export async function detectCategory(title: string, description: string): Promise<string> {
   // Try AI first
   const aiResult = await detectCategoryByAI(title, description);
   if (aiResult) {
