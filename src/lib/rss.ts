@@ -98,7 +98,8 @@ export async function fetchAndImportFeeds(): Promise<{
         }
 
         const slug = `${sanitizeSlug(item.title)}-${Date.now()}`;
-        const content = (item as any).contentSnippet || item.content || item.description || "";
+        const itemExtra = item as Record<string, unknown>;
+        const content = (itemExtra.contentSnippet as string) || item.content || item.description || "";
         const dek = truncate(content.replace(/<[^>]*>/g, "").trim(), 200);
 
         await prisma.article.create({
