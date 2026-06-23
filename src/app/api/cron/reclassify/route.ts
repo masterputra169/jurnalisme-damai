@@ -97,7 +97,21 @@ async function rewriteWithAI(title: string, description: string, sourceUrl: stri
 
   if (!apiKey || !apiBase) return null;
 
-  const systemPrompt = `Kamu adalah jurnalis profesional berbahasa Indonesia. Tulis ulang berita berikut dengan gaya jurnalistik yang segar, faktual, dan mudah dipahami. Gunakan kalimat dan struktur yang BERBEDA dari aslinya. Jaga fakta, nama, angka, dan data tetap akurat. Tulis dalam 3-6 paragraf, total 300-600 kata. Bahasa formal, objektif, netral.`;
+  const systemPrompt = `Kamu adalah jurnalis profesional berbahasa Indonesia yang menulis ulang berita dari sumber lain dengan gaya jurnalistik yang segar, faktual, dan mudah dipahami.
+
+TUGAS:
+1. Tulis ulang berita berdasarkan judul dan ringkasan yang diberikan
+2. Gunakan kalimat dan struktur yang BERBEDA dari aslinya (parafrase)
+3. Jaga fakta, nama, angka, dan data tetap akurat
+4. Tulis dalam gaya jurnalistik Indonesia: paragraf-paragraf singkat (1-3 kalimat)
+5. Mulai dengan lead (paragraf pertama) yang langsung ke inti berita
+6. Jangan tambahkan opini atau interpretasi pribadi
+7. Jangan gunakan kata "saya", "kami", "menurut kami"
+8. Gunakan 3-6 paragraf, total 300-600 kata
+9. Bahasa formal, objektif, netral
+10. Hasil akhir HARUS berupa teks berita siap publikasi, bukan ringkasan
+11. JANGAN gunakan markdown apa pun — tanpa **, *, _, #, atau format tebal/miring
+12. JANGAN gunakan em-dash (—) atau en-dash (–), gunakan koma atau titik sebagai gantinya`;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
@@ -129,9 +143,21 @@ async function rewriteWithAI(title: string, description: string, sourceUrl: stri
 
     const data = (await resp.json()) as Record<string, unknown>;
     const choices = data.choices as Array<{ message: { content: string } }> | undefined;
-    const content = choices?.[0]?.message?.content?.trim() || "";
+    const raw = choices?.[0]?.message?.content?.trim() || "";
 
-    return content.length > 100 ? content : null;
+    // Strip markdown formatting, em-dashes, en-dashes
+    const cleaned = raw
+      .replace(/\*\*/g, '')
+      .replace(/(?<!\*)\*(?!\*)/g, '')
+      .replace(/__/g, '')
+      .replace(/_/g, '')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/—/g, ', ')
+      .replace(/–/g, ', ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return cleaned.length > 100 ? cleaned : null;
   } catch {
     clearTimeout(timeout);
     return null;

@@ -367,7 +367,9 @@ TUGAS:
 7. Jangan gunakan kata "saya", "kami", "menurut kami"
 8. Gunakan 3-6 paragraf, total 300-600 kata
 9. Bahasa formal, objektif, netral
-10. Hasil akhir HARUS berupa teks berita siap publikasi, bukan ringkasan`;
+10. Hasil akhir HARUS berupa teks berita siap publikasi, bukan ringkasan
+11. JANGAN gunakan markdown apa pun — tanpa **, *, _, #, atau format tebal/miring
+12. JANGAN gunakan em-dash (—) atau en-dash (–), gunakan koma atau titik sebagai gantinya`;
 
 async function rewriteArticle(title: string, description: string, sourceUrl: string): Promise<string | null> {
   const apiKey = process.env.LLM_API_KEY;
@@ -415,12 +417,24 @@ async function rewriteArticle(title: string, description: string, sourceUrl: str
     const choices = data.choices as Array<{ message: { content: string } }> | undefined;
     const content = choices?.[0]?.message?.content?.trim() || "";
 
-    if (!content || content.length < 100) {
+    // Strip markdown formatting, em-dashes, en-dashes
+    const cleaned = content
+      .replace(/\*\*/g, '')       // bold
+      .replace(/(?<!\*)\*(?!\*)/g, '')  // italic (not bold asterisks)
+      .replace(/__/g, '')         // underline/bold alt
+      .replace(/_/g, '')          // italic alt
+      .replace(/^#{1,6}\s+/gm, '') // headings
+      .replace(/—/g, ', ')        // em-dash → comma
+      .replace(/–/g, ', ')        // en-dash → comma
+      .replace(/\s+/g, ' ')       // collapse extra whitespace
+      .trim();
+
+    if (!cleaned || cleaned.length < 100) {
       console.warn(`[RSS Rewrite] Too short output, falling back to raw content`);
       return null;
     }
 
-    return content;
+    return cleaned;
   } catch (err) {
     clearTimeout(timeout);
     console.warn(`[RSS Rewrite] Error: ${(err as Error).message}`);
