@@ -5,6 +5,10 @@ import { detectCategory } from "@/lib/rss";
 // Process 5 articles per batch to stay within Hobby 10s timeout
 const BATCH_SIZE = 5;
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
@@ -33,7 +37,7 @@ export async function GET(request: Request) {
     let updated = 0;
     let rewritten = 0;
     let categoryChanged = 0;
-    let errors = 0;
+    const errors = 0;
 
     for (const article of articles) {
       const desc = article.dek || "";
