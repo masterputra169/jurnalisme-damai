@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   try {
     // Only fetch articles missing a category
     const articles = await prisma.article.findMany({
-      where: { isSyndicated: true, categoryId: null },
+      where: { isSyndicated: true, categoryId: { is: null } },
       select: { id: true, title: true, dek: true },
       orderBy: { createdAt: "asc" },
       take: BATCH_SIZE,
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     }
 
     const remaining = await prisma.article.count({
-      where: { isSyndicated: true, categoryId: null },
+      where: { isSyndicated: true, categoryId: { is: null } },
     });
 
     return NextResponse.json({
