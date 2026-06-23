@@ -349,6 +349,81 @@ Balas HANYA dengan slug kategori (misal: "politik"), tanpa penjelasan tambahan.`
   }
 }
 
+// ── AI article rewriting (Opsi C) ──
+
+const REWRITE_SYSTEM_PROMPT = `Kamu adalah jurnalis profesional berbahasa Indonesia yang menulis ulang berita dari sumber lain dengan gaya jurnalistik yang segar, faktual, dan mudah dipahami.
+
+TUGAS:
+1. Tulis ulang berita berdasarkan judul dan ringkasan yang diberikan
+2. Gunakan kalimat dan struktur yang BERBEDA dari aslinya (parafrase)
+3. Jaga fakta, nama, angka, dan data tetap akurat
+4. Tulis dalam gaya jurnalistik Indonesia: paragraf-paragraf singkat (1-3 kalimat)
+5. Mulai dengan lead (paragraf pertama) yang langsung ke inti berita
+6. Jangan tambahkan opini atau interpretasi pribadi
+7. Jangan gunakan kata "saya", "kami", "menurut kami"
+8. Gunakan 3-6 paragraf, total 300-600 kata
+9. Bahasa formal, objektif, netral
+10. Hasil akhir HARUS berupa teks berita siap publikasi, bukan ringkasan`;
+
+async function rewriteArticle(title: string, description: string, sourceUrl: string): Promise<string | null> {
+  const apiKey = process.env.LLM_API_KEY;
+  const apiBase = process.env.LLM_API_BASE_URL;
+
+  if (!apiKey || !apiBase) {
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000); // 30s for rewrite
+
+  try {
+    const resp = await fetch(`${apiBase}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://jurnalisme-damai.vercel.app",
+        "X-Title": "Jurnalisme Damai RSS Importer",
+      },
+      body: JSON.stringify({
+        model: process.env.LLM_MODEL || "Naraya/Naraya-v4-flash",
+        messages: [
+          { role: "system", content: REWRITE_SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `Judul: ${title}\nRingkasan sumber: ${description || "(tidak ada)"}}\nURL sumber: ${sourceUrl}\n\nTulis ulang berita ini dalam gaya jurnalistik Indonesia profesional.`,
+          },
+        ],
+        max_tokens: 1500,
+        temperature: 0.7,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!resp.ok) {
+      console.error(`[RSS Rewrite] API error: ${resp.status}`);
+      return null;
+    }
+
+    const data = (await resp.json()) as Record<string, unknown>;
+    const choices = data.choices as Array<{ message: { content: string } }> | undefined;
+    const content = choices?.[0]?.message?.content?.trim() || "";
+
+    if (!content || content.length < 100) {
+      console.warn(`[RSS Rewrite] Too short output, falling back to raw content`);
+      return null;
+    }
+
+    return content;
+  } catch (err) {
+    clearTimeout(timeout);
+    console.warn(`[RSS Rewrite] Error: ${(err as Error).message}`);
+    return null;
+  }
+}
+
 // ── Main categorization (AI → Keywords fallback) ──
 
 export async function detectCategory(title: string, description: string): Promise<string> {
@@ -470,12 +545,18 @@ export async function fetchAndImportFeeds(): Promise<{
         const plainContent = description.replace(/<[^>]*>/g, "").trim();
         const dek = truncate(plainContent, 200);
 
+        // Try AI rewrite first, fallback to raw content
+        let body = await rewriteArticle(item.title, description, item.link);
+        if (!body) {
+          body = truncate(plainContent, 2000);
+        }
+
         await prisma.article.create({
           data: {
             slug,
             title: item.title,
             dek,
-            body: truncate(plainContent, 2000),
+            body,
             status: "PUBLISHED",
             authorId,
             categoryId: category.id,
