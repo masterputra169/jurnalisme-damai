@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { detectCategory, detectCategoryByAI, detectCategoryByKeywords } from "@/lib/rss";
+import { detectCategory } from "@/lib/rss";
+
+// Process 5 articles per batch to stay within Hobby 10s timeout
+const BATCH_SIZE = 5;
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -17,6 +20,8 @@ export async function GET(request: Request) {
     const articles = await prisma.article.findMany({
       where: { isSyndicated: true },
       select: { id: true, title: true, dek: true, body: true, sourceUrl: true },
+      orderBy: { createdAt: "asc" },
+      take: BATCH_SIZE,
     });
 
     const categories = await prisma.category.findMany();
@@ -59,13 +64,19 @@ export async function GET(request: Request) {
       }
     }
 
+    const remaining = await prisma.article.count({
+      where: { isSyndicated: true },
+    });
+
     return NextResponse.json({
       ok: true,
-      total: articles.length,
+      batch: articles.length,
       updated,
       categoryChanged,
       rewritten,
       errors,
+      remaining,
+      message: remaining > 0 ? `Call again to process ${remaining} more articles` : "All articles processed",
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
@@ -85,7 +96,7 @@ async function rewriteWithAI(title: string, description: string, sourceUrl: stri
   const systemPrompt = `Kamu adalah jurnalis profesional berbahasa Indonesia. Tulis ulang berita berikut dengan gaya jurnalistik yang segar, faktual, dan mudah dipahami. Gunakan kalimat dan struktur yang BERBEDA dari aslinya. Jaga fakta, nama, angka, dan data tetap akurat. Tulis dalam 3-6 paragraf, total 300-600 kata. Bahasa formal, objektif, netral.`;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
     const resp = await fetch(`${apiBase}/chat/completions`, {
@@ -102,7 +113,7 @@ async function rewriteWithAI(title: string, description: string, sourceUrl: stri
           { role: "system", content: systemPrompt },
           { role: "user", content: `Judul: ${title}\nRingkasan: ${description || "(tidak ada)"}\nURL: ${sourceUrl}\n\nTulis ulang berita ini.` },
         ],
-        max_tokens: 1500,
+        max_tokens: 1000,
         temperature: 0.7,
       }),
       signal: controller.signal,
