@@ -1,6 +1,5 @@
 // prisma/schema.prisma
-// SQLite for local dev, PostgreSQL for production (Supabase).
-// Enum diganti string + default karena SQLite tidak support enum.
+// PostgreSQL for production (Supabase).
 
 generator client {
   provider = "prisma-client-js"
@@ -11,12 +10,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  READER
+  CONTRIBUTOR
+  EDITOR
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTIONED
+}
+
+enum ReactionType {
+  STRONG_ARGUMENT
+  NEEDS_SOURCE
+  OTHER_PERSPECTIVE
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
   email         String    @unique
   passwordHash  String?
-  role          String    @default("READER") // READER | CONTRIBUTOR | EDITOR
+  role          Role      @default(READER)
   createdAt     DateTime  @default(now())
 
   articles      Article[]
@@ -52,7 +76,7 @@ model Article {
   title           String
   dek             String
   body            String
-  status          String         @default("PUBLISHED") // DRAFT | PUBLISHED | ARCHIVED
+  status          ArticleStatus @default(PUBLISHED)
   authorId        String
   categoryId      String
   publishedAt     DateTime?
@@ -110,7 +134,7 @@ model Reaction {
   id        String   @id @default(cuid())
   replyId   String
   userId    String
-  type      String   // STRONG_ARGUMENT | NEEDS_SOURCE | OTHER_PERSPECTIVE
+  type      ReactionType
 
   reply     Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
@@ -123,7 +147,7 @@ model Report {
   replyId     String
   reporterId  String
   reason      String
-  status      String   @default("PENDING") // PENDING | REVIEWED | DISMISSED | ACTIONED
+  status      ReportStatus  @default(PENDING)
   createdAt   DateTime @default(now())
 
   reply       Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
