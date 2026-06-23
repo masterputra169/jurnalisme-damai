@@ -1,4 +1,3 @@
-import { WeaveDivider } from "@/components/weave/WeaveDivider";
 import Link from "next/link";
 
 export function SiteFooter() {
@@ -23,7 +22,6 @@ export function SiteFooter() {
             </p>
           </div>
         </div>
-        <WeaveDivider variant="crossed" />
         <p className="text-center text-[10px] font-mono text-[var(--color-ink)]/40 py-4">
           &copy; {new Date().getFullYear()} Anyaman · Jurnalisme Damai
         </p>

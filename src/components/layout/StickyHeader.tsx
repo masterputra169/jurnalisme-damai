@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, type ReactNode } from "react";
-import { WeaveDivider } from "@/components/weave/WeaveDivider";
 
 interface StickyHeaderProps {
   children: ReactNode;
@@ -33,9 +32,6 @@ export function StickyHeader({ children, topNav, accountSlot }: StickyHeaderProp
             {topNav}
             {accountSlot}
           </div>
-        </div>
-        <div className={`mt-4 transition-opacity duration-300 ${scrolled ? "opacity-40" : ""}`}>
-          <WeaveDivider variant="crossed" />
         </div>
       </div>
     </header>

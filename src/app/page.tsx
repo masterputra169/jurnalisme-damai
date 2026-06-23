@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { WeaveDivider } from "@/components/weave/WeaveDivider";
 import { Badge } from "@/components/ui/Badge";
 import { ArticleCard } from "@/components/artikel/ArticleCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -45,9 +44,6 @@ export default async function Home() {
           <p className="font-body text-lg leading-relaxed text-[var(--color-ink)]/85 max-w-[68ch]">
             {hero.dek}
           </p>
-          <div className="mt-2 max-w-[68ch]">
-            <WeaveDivider variant="tarum" />
-          </div>
           <Link
             href={`/artikel/${hero.slug}`}
             className="font-mono text-sm uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-4 mt-3 self-start transition-colors"
@@ -84,8 +80,6 @@ export default async function Home() {
         </aside>
       </section>
 
-      <WeaveDivider variant="crossed" />
-
       {/* TITIK TEMU — asymmetric bento grid */}
       {titikTemu.length > 0 && (
         <ScrollReveal className="mt-16">
@@ -117,8 +111,6 @@ export default async function Home() {
           </section>
         </ScrollReveal>
       )}
-
-      <WeaveDivider variant="giri" />
 
       {/* GRID BERITA + SIDEBAR */}
       <ScrollReveal className="mt-16">
