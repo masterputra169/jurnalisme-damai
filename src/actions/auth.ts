@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { RegisterSchema, LoginSchema } from "@/lib/validations/auth";
-import type { Role } from "@prisma/client";
 
 const COOKIE_NAME = "anyaman_uid";
 
@@ -52,7 +51,7 @@ export async function register(
       name: parsed.data.name,
       email: normalizedEmail,
       passwordHash: hashed,
-      role: "READER" as Role,
+      role: "READER",
     },
   });
 
