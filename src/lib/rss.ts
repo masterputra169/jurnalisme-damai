@@ -246,7 +246,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   ],
 };
 
-function detectCategoryByKeywords(title: string, description: string): string {
+export function detectCategoryByKeywords(title: string, description: string): string {
   const text = `${title} ${description}`.toLowerCase();
 
   const scores: Record<string, number> = {};
