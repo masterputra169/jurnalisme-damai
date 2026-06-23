@@ -15,8 +15,9 @@ interface PageProps {
 export async function generateStaticParams() {
   const { prisma } = await import("@/lib/prisma");
   const articles = await prisma.article.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: "PUBLISHED", isSyndicated: false },
     select: { slug: true },
+    take: 20,
   });
   return articles.map((a) => ({ slug: a.slug }));
 }

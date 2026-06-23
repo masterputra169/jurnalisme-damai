@@ -42,7 +42,7 @@ export async function getArticleBySlug(slug: string) {
   return prisma.article.findUnique({
     where: { slug },
     include: {
-      category: true,
+      category: { select: { name: true, slug: true } },
       author: { select: { name: true } },
       tags: { include: { tag: true } },
       viewpoints: { orderBy: { order: "asc" } },

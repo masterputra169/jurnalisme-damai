@@ -21,17 +21,17 @@ const FEEDS: FeedConfig[] = [
   {
     name: "ANTARA",
     url: "https://www.antaranews.com/rss/terkini",
-    categorySlug: "politik",
+    categorySlug: "opini",
   },
   {
     name: "Republika",
     url: "https://www.republika.co.id/rss",
-    categorySlug: "sosial-budaya",
+    categorySlug: "opini",
   },
   {
     name: "CNN Indonesia",
     url: "https://www.cnnindonesia.com/nasional/rss",
-    categorySlug: "sosial-budaya",
+    categorySlug: "opini",
   },
 ];
 
