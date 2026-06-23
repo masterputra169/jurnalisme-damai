@@ -19,19 +19,19 @@ interface FeedConfig {
 
 const FEEDS: FeedConfig[] = [
   {
-    name: "Kompas",
-    url: "https://www.kompas.com/rss/",
+    name: "ANTARA",
+    url: "https://www.antaranews.com/rss/terkini",
     categorySlug: "politik",
   },
   {
-    name: "Tempo",
-    url: "https://tempo.co/rss/terkini",
+    name: "Republika",
+    url: "https://www.republika.co.id/rss",
     categorySlug: "sosial-budaya",
   },
   {
-    name: "ANTARA",
-    url: "https://www.antaranews.com/rss/top-news",
-    categorySlug: "toleransi-kebhinekaan",
+    name: "CNN Indonesia",
+    url: "https://www.cnnindonesia.com/nasional/rss",
+    categorySlug: "sosial-budaya",
   },
 ];
 
