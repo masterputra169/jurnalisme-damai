@@ -238,11 +238,27 @@ export async function fetchAndImportFeeds(): Promise<{
     categoryMap.set(cat.slug, cat);
   }
 
+  const MAX_ITEMS_PER_FEED = 5;
+
   for (const feed of FEEDS) {
     try {
-      const parsed = await parser.parseURL(feed.url);
+      // Timeout wrapper for feed fetch
+      const controller = new AbortController();
+      const feedTimeout = setTimeout(() => controller.abort(), 15000); // 15s per feed
 
-      for (const item of parsed.items) {
+      const parsed = await Promise.race([
+        parser.parseURL(feed.url),
+        new Promise<never>((_, reject) => {
+          controller.signal.addEventListener("abort", () => reject(new Error("Feed timeout")));
+        }),
+      ]);
+
+      clearTimeout(feedTimeout);
+
+      // Limit items to avoid timeout
+      const items = parsed.items.slice(0, MAX_ITEMS_PER_FEED);
+
+      for (const item of items) {
         if (!item.link || !item.title) continue;
 
         // Check if already imported
