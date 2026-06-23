@@ -23,8 +23,8 @@ export function ArticleCard({
 }: ArticleCardProps) {
   return (
     <article
-      className={`group border-t border-[var(--color-line)] pt-4 transition-colors hover:border-[var(--color-tarum)] ${
-        variant === "compact" ? "pb-4" : "pb-6"
+      className={`group border-b border-[var(--color-line)] pb-6 transition-colors hover:border-[var(--color-tarum)] animate-slide-left ${
+        variant === "compact" ? "" : ""
       }`}
     >
       <div className="flex items-center gap-3 mb-2">
@@ -32,26 +32,26 @@ export function ArticleCard({
         <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
           {formatTanggalPendek(publishedAt)}
         </span>
+        {replyCount > 0 && (
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-giri)]">
+            {replyCount} balasan
+          </span>
+        )}
       </div>
       <h3
         className={`font-display font-semibold leading-tight tracking-tight group-hover:text-[var(--color-tarum)] transition-colors ${
-          variant === "compact" ? "text-[16px]" : "text-[20px]"
+          variant === "compact" ? "text-[16px]" : "text-[22px]"
         }`}
       >
         <Link href={`/artikel/${slug}`}>{title}</Link>
       </h3>
       <p
-        className={`font-body text-[var(--color-ink)]/80 mt-2 ${
-          variant === "compact" ? "text-sm line-clamp-2" : "text-base"
+        className={`font-body text-[var(--color-ink)]/80 mt-2 leading-relaxed ${
+          variant === "compact" ? "text-sm line-clamp-2" : "text-base line-clamp-3"
         }`}
       >
         {dek}
       </p>
-      {replyCount > 0 && (
-        <p className="font-mono text-[11px] mt-3 text-[var(--color-giri)]">
-          {replyCount} balasan di forum
-        </p>
-      )}
     </article>
   );
 }

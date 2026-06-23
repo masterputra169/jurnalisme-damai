@@ -2,6 +2,7 @@ import Link from "next/link";
 import { WeaveDivider } from "@/components/weave/WeaveDivider";
 import { Badge } from "@/components/ui/Badge";
 import { ArticleCard } from "@/components/artikel/ArticleCard";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { getPublishedArticles } from "@/lib/articles";
 import { formatTanggal } from "@/lib/format";
 
@@ -20,37 +21,36 @@ export default async function Home() {
   const [hero, ...rest] = articles;
   const heroThread = hero._count.replies;
 
-  // ambil thread dengan reply paling banyak sebagai "titik temu"
   const titikTemu = [...articles]
     .filter((a) => a._count.replies > 0)
     .sort((a, b) => b._count.replies - a._count.replies)
     .slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      {/* HERO dua-benang — sesuai wireframe DESIGN.md §3.3 */}
-      <section className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16">
-        <article className="flex flex-col gap-4">
+    <main className="mx-auto max-w-6xl px-6">
+      {/* HERO — editorial lead story */}
+      <section className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16 pt-16 pb-16">
+        <article className="flex flex-col gap-5">
           <div className="flex items-center gap-3">
             <Badge tone="tarum">{hero.category.name}</Badge>
             <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
               {formatTanggal(hero.publishedAt)}
             </span>
           </div>
-          <h1 className="font-display text-[42px] leading-[1.05] tracking-tight md:text-[52px]">
-            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-tarum)] transition-colors">
+          <h1 className="font-display text-[44px] leading-[1.05] tracking-tight md:text-[56px]">
+            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-tarum)] transition-colors duration-300">
               {hero.title}
             </Link>
           </h1>
           <p className="font-body text-lg leading-relaxed text-[var(--color-ink)]/85 max-w-[68ch]">
             {hero.dek}
           </p>
-          <div className="mt-4 max-w-[68ch]">
+          <div className="mt-2 max-w-[68ch]">
             <WeaveDivider variant="tarum" />
           </div>
           <Link
             href={`/artikel/${hero.slug}`}
-            className="font-mono text-sm uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-4 mt-3 self-start"
+            className="font-mono text-sm uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-4 mt-3 self-start transition-colors"
           >
             Baca selengkapnya →
           </Link>
@@ -60,8 +60,8 @@ export default async function Home() {
           <div className="flex items-center gap-3">
             <Badge tone="giri">Forum · Titik Temu</Badge>
           </div>
-          <h2 className="font-display text-[24px] leading-tight">
-            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-giri)] transition-colors">
+          <h2 className="font-display text-[22px] leading-tight">
+            <Link href={`/artikel/${hero.slug}`} className="hover:text-[var(--color-giri)] transition-colors duration-300">
               Diskusi yang sedang produktif di portal ini
             </Link>
           </h2>
@@ -77,95 +77,111 @@ export default async function Home() {
           </div>
           <Link
             href={`/artikel/${hero.slug}#diskusi`}
-            className="font-mono text-sm uppercase tracking-wider text-[var(--color-giri)] hover:underline underline-offset-4 mt-3 self-start"
+            className="font-mono text-sm uppercase tracking-wider text-[var(--color-giri)] hover:underline underline-offset-4 mt-3 self-start transition-colors"
           >
             Masuk diskusi →
           </Link>
         </aside>
       </section>
 
-      {/* TITIK TEMU — artikel dengan diskusi paling konstruktif */}
+      <WeaveDivider variant="crossed" />
+
+      {/* TITIK TEMU — asymmetric bento grid */}
       {titikTemu.length > 0 && (
-        <section className="mt-20">
-          <header className="flex items-end justify-between mb-6">
-            <div>
+        <ScrollReveal className="mt-16">
+          <section>
+            <header className="mb-8">
               <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-kunyit)]">
                 Titik Temu
               </p>
-              <h2 className="font-display text-[24px] mt-1">
+              <h2 className="font-display text-[28px] mt-1">
                 Artikel dengan diskusi paling konstruktif
               </h2>
+            </header>
+            <div className="grid gap-6 md:grid-cols-[1.2fr_1fr_1fr]">
+              {titikTemu.map((a, i) => (
+                <ArticleCard
+                  key={a.id}
+                  slug={a.slug}
+                  title={a.title}
+                  dek={a.dek}
+                  categoryName={a.category.name}
+                  publishedAt={a.publishedAt}
+                  replyCount={a._count.replies}
+                  variant={i > 0 ? "compact" : "default"}
+                />
+              ))}
             </div>
-          </header>
-          <div className="grid gap-6 md:grid-cols-3">
-            {titikTemu.map((a) => (
-              <ArticleCard
-                key={a.id}
-                slug={a.slug}
-                title={a.title}
-                dek={a.dek}
-                categoryName={a.category.name}
-                publishedAt={a.publishedAt}
-                replyCount={a._count.replies}
-              />
-            ))}
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       )}
 
+      <WeaveDivider variant="giri" />
+
       {/* GRID BERITA + SIDEBAR */}
-      <section className="mt-20 grid gap-12 lg:grid-cols-[2fr_1fr]">
-        <div>
-          <h2 className="font-display text-[24px] mb-6 pb-3 border-b border-[var(--color-line)]">
-            Berita terbaru
-          </h2>
-          <div className="space-y-8">
-            {rest.slice(0, 6).map((a) => (
-              <ArticleCard
-                key={a.id}
-                slug={a.slug}
-                title={a.title}
-                dek={a.dek}
-                categoryName={a.category.name}
-                publishedAt={a.publishedAt}
-                replyCount={a._count.replies}
-              />
-            ))}
+      <ScrollReveal className="mt-16">
+        <section className="grid gap-12 lg:grid-cols-[2fr_1fr] pb-20">
+          <div>
+            <header className="flex items-end justify-between mb-8">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-tarum)]">
+                  Berita Terbaru
+                </p>
+                <h2 className="font-display text-[28px] mt-1">
+                  Artikel terbaru
+                </h2>
+              </div>
+            </header>
+            <div className="space-y-8">
+              {rest.slice(0, 6).map((a) => (
+                <ArticleCard
+                  key={a.id}
+                  slug={a.slug}
+                  title={a.title}
+                  dek={a.dek}
+                  categoryName={a.category.name}
+                  publishedAt={a.publishedAt}
+                  replyCount={a._count.replies}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-        <aside>
-          <h2 className="font-display text-[18px] mb-6 pb-3 border-b border-[var(--color-line)]">
-            Kategori
-          </h2>
-          <ul className="space-y-3 font-mono text-sm">
-            <li>
-              <Link href="/kategori/politik" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
-                Politik →
+          <aside className="lg:pl-8 lg:border-l lg:border-[var(--color-line)]">
+            <h2 className="font-display text-[18px] mb-6">
+              Kategori
+            </h2>
+            <ul className="space-y-4 font-mono text-sm">
+              {[
+                { slug: "politik", label: "Politik" },
+                { slug: "sosial-budaya", label: "Sosial-Budaya" },
+                { slug: "toleransi-kebhinekaan", label: "Toleransi & Kebhinekaan" },
+                { slug: "klarifikasi-cek-fakta", label: "Klarifikasi/Cek Fakta" },
+                { slug: "opini", label: "Opini" },
+              ].map((cat) => (
+                <li key={cat.slug}>
+                  <Link
+                    href={`/kategori/${cat.slug}`}
+                    className="group flex items-center gap-2 text-[var(--color-ink)] hover:text-[var(--color-tarum)] transition-colors"
+                  >
+                    <span className="inline-block w-3 h-px bg-[var(--color-line)] group-hover:w-5 group-hover:bg-[var(--color-tarum)] transition-all duration-300" />
+                    <span>{cat.label}</span>
+                    <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">→</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-10 pt-8 border-t border-[var(--color-line)]">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink)]/50 mb-4">
+                Metodologi
+              </p>
+              <Link href="/tentang" className="font-body text-sm text-[var(--color-ink)]/70 hover:text-[var(--color-tarum)] transition-colors">
+                Tentang jurnalisme damai dan cara kerja kami →
               </Link>
-            </li>
-            <li>
-              <Link href="/kategori/sosial-budaya" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
-                Sosial-Budaya →
-              </Link>
-            </li>
-            <li>
-              <Link href="/kategori/toleransi-kebhinekaan" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
-                Toleransi &amp; Kebhinekaan →
-              </Link>
-            </li>
-            <li>
-              <Link href="/kategori/klarifikasi-cek-fakta" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
-                Klarifikasi/Cek Fakta →
-              </Link>
-            </li>
-            <li>
-              <Link href="/kategori/opini" className="text-[var(--color-ink)] hover:text-[var(--color-tarum)]">
-                Opini →
-              </Link>
-            </li>
-          </ul>
-        </aside>
-      </section>
+            </div>
+          </aside>
+        </section>
+      </ScrollReveal>
     </main>
   );
 }

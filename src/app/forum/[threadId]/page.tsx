@@ -28,29 +28,31 @@ export default async function ThreadPage({ params }: PageProps) {
   const { thread, roots } = data;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <div className="flex items-center gap-3 mb-3">
-        <Badge tone="giri">Forum</Badge>
-        <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
-          {formatTanggal(thread.createdAt)}
-        </span>
-        {thread.article && (
-          <Link
-            href={`/artikel/${thread.article.slug}`}
-            className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-2"
-          >
-            · terkait artikel: {thread.article.title}
-          </Link>
-        )}
-      </div>
+    <main className="mx-auto max-w-3xl px-6 py-16">
+      <header className="mb-8">
+        <div className="flex items-center gap-3 mb-3">
+          <Badge tone="giri">Forum</Badge>
+          <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
+            {formatTanggal(thread.createdAt)}
+          </span>
+          {thread.article && (
+            <Link
+              href={`/artikel/${thread.article.slug}`}
+              className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-tarum)] hover:underline underline-offset-2 transition-colors"
+            >
+              · {thread.article.title}
+            </Link>
+          )}
+        </div>
 
-      <h1 className="font-display text-[36px] leading-[1.1] tracking-tight md:text-[40px] mb-6">
-        {thread.title}
-      </h1>
+        <h1 className="font-display text-[40px] leading-[1.08] tracking-tight md:text-[48px]">
+          {thread.title}
+        </h1>
 
-      <div className="max-w-[200px] mb-8">
-        <WeaveDivider variant="giri" />
-      </div>
+        <div className="max-w-[200px] mt-6">
+          <WeaveDivider variant="giri" />
+        </div>
+      </header>
 
       {thread.isLocked ? (
         <p className="font-body italic text-[var(--color-ink)]/70">
