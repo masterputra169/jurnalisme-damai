@@ -19,10 +19,10 @@ export function StickyHeader({ children, topNav, accountSlot }: StickyHeaderProp
 
   return (
     <header
-      className={`border-b border-[var(--color-line)] bg-[var(--color-paper)] transition-[background-color,backdrop-filter,box-shadow,transform] duration-300 ${
+      className={`sticky top-0 z-50 border-b border-[var(--color-line)] bg-[var(--color-paper)] transition-shadow duration-300 before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-[var(--color-kunyit)] ${
         scrolled
-          ? "fixed top-0 left-0 right-0 z-50 bg-[var(--color-paper)]/80 backdrop-blur-sm shadow-[0_1px_0_var(--color-line)] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-[var(--color-kunyit)]"
-          : "relative before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-[var(--color-kunyit)]"
+          ? "shadow-[0_1px_0_var(--color-line)] bg-[var(--color-paper)]/80 backdrop-blur-sm"
+          : ""
       }`}
     >
       <div className="mx-auto max-w-6xl px-6 pt-8 pb-3">
