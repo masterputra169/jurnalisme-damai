@@ -93,7 +93,7 @@ export default async function ModerasiPage() {
                     {formatTanggal(r.createdAt)}
                   </span>
                   <span className="font-mono text-[11px] text-[var(--color-ink)]/70">
-                    oleh pelapor: {r.reporter.name}
+                    oleh pelapor: {r.reporter?.name ?? "Anonymous"}
                   </span>
                 </header>
                 <p className="font-body mb-3">
