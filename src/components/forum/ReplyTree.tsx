@@ -69,7 +69,7 @@ function ReplyNodeView({
       >
         <header className="flex items-center gap-3 mb-2 flex-wrap">
           <span className="font-display text-[14px] font-semibold">
-            {node.author.name}
+            {node.author?.name ?? "Anonymous"}
           </span>
           <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
             {formatTanggalPendek(node.createdAt)}

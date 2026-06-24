@@ -24,18 +24,29 @@ export async function createReply(
   }
   const data = parsed.data;
 
-  // Rate limit per author per thread
-  const rlKey = `${data.authorEmail}:${data.threadId}`;
-  if (!checkRateLimit(rlKey, 10_000, 1)) {
+  // Rate limit — stricter for anonymous
+  const isAnonymous = !data.authorEmail || data.authorEmail.trim() === "";
+  const rlKey = isAnonymous
+    ? `anon:${data.threadId}`
+    : `${data.authorEmail}:${data.threadId}`;
+  const rateLimitWindow = isAnonymous ? 30_000 : 10_000; // 30s anonymous, 10s logged-in
+  const rateLimitMax = isAnonymous ? 1 : 1;
+  if (!checkRateLimit(rlKey, rateLimitWindow, rateLimitMax)) {
     return {
       ok: false,
-      error: "Tunggu 10 detik sebelum mengirim balasan lagi di thread ini.",
+      error: isAnonymous
+        ? "Tunggu 30 detik sebelum mengirim balasan lagi."
+        : "Tunggu 10 detik sebelum mengirim balasan lagi di thread ini.",
     };
   }
 
-  const author = await prisma.user.findUnique({ where: { email: data.authorEmail } });
-  if (!author) {
-    return { ok: false, error: "Akun tidak ditemukan. Login dulu untuk membalas." };
+  let authorId: string | null = null;
+  if (!isAnonymous) {
+    const author = await prisma.user.findUnique({ where: { email: data.authorEmail } });
+    if (!author) {
+      return { ok: false, error: "Akun tidak ditemukan. Login dulu untuk membalas." };
+    }
+    authorId = author.id;
   }
 
   const cleanHtml = sanitizeHtml(data.content);
@@ -51,7 +62,7 @@ export async function createReply(
   const reply = await prisma.reply.create({
     data: {
       threadId: data.threadId,
-      authorId: author.id,
+      authorId,
       parentId: data.parentId ?? null,
       content: cleanHtml,
       sourceUrl: cleanSource,

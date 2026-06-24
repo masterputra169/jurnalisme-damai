@@ -15,7 +15,7 @@ export const CreateReplySchema = z.object({
     .url("Sumber harus URL valid (https://...)")
     .optional()
     .or(z.literal("")),
-  authorEmail: z.string().email("Email tidak valid"),
+  authorEmail: z.string().email("Email tidak valid").optional().or(z.literal("")),
 });
 
 export type CreateReplyInput = z.infer<typeof CreateReplySchema>;

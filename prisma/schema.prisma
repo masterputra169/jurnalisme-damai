@@ -120,7 +120,7 @@ model Thread {
 model Reply {
   id          String     @id @default(cuid())
   threadId    String
-  authorId    String
+  authorId    String?
   parentId    String?
   content     String
   sourceUrl   String?
@@ -128,7 +128,7 @@ model Reply {
   isHidden    Boolean    @default(false)
 
   thread      Thread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author      User       @relation(fields: [authorId], references: [id])
+  author      User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
   parent      Reply?     @relation("ReplyToReply", fields: [parentId], references: [id])
   children    Reply[]    @relation("ReplyToReply")
   reactions   Reaction[]

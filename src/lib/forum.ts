@@ -26,7 +26,7 @@ export type ReplyNode = {
   sourceUrl: string | null;
   createdAt: Date;
   isHidden: boolean;
-  author: { name: string };
+  author: { name: string } | null;
   reactions: { type: string; _count?: number }[];
   children: ReplyNode[];
 };

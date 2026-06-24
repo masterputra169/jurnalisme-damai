@@ -34,13 +34,18 @@ export function ReplyForm({
     setError(null);
     setWarning(null);
 
+    if (!content.trim()) {
+      setError("Komentar tidak boleh kosong.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await createReply({
         threadId,
         parentId: parentId ?? undefined,
         content,
         sourceUrl: sourceUrl || undefined,
-        authorEmail: email,
+        authorEmail: email || undefined,
       });
       if (!result.ok) {
         setError(result.error);
@@ -54,56 +59,55 @@ export function ReplyForm({
     });
   };
 
-  const isEmailSet = email.length > 0;
-
   return (
-    <>
-      {!isEmailSet && (
-        <div className="border border-[var(--color-line)] p-4 text-sm">
-          <p className="font-body text-[var(--color-ink)]/85">
-            Untuk membalas, masukkan email akun Anda (sesuai yang didaftarkan
-            saat seed). Untuk demo:{" "}
-            <code className="font-mono text-xs">pembaca@anyaman.id</code> atau{" "}
-            <code className="font-mono text-xs">daniel@anyaman.id</code>.
-          </p>
-          <Input
-            label="Email Anda"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email@contoh.id"
-            className="mt-3 max-w-md"
-          />
-        </div>
+    <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${compact ? "mt-3" : ""}`}>
+      {!email && (
+        <p className="text-xs text-[var(--color-ink)]/60">
+          Balas sebagai Anonymous. Atau{" "}
+          <button
+            type="button"
+            onClick={() => setEmail("anon@example.com")}
+            className="text-[var(--color-tarum)] underline underline-offset-2 hover:text-[var(--color-giri)] transition-colors"
+          >
+            masukkan email
+          </button>{" "}
+          untuk menampilkan nama Anda.
+        </p>
       )}
-      {isEmailSet && (
-        <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${compact ? "mt-3" : ""}`}>
-          <Textarea
-            label={parentId ? "Balas komentar ini" : "Tulis balasan"}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Sampaikan argumen Anda. Tanpa dehumanisasi."
-            rows={compact ? 3 : 5}
-            error={error ?? undefined}
-          />
-          <Input
-            label="Sumber (opsional, tapi disarankan untuk klaim faktual)"
-            type="url"
-            value={sourceUrl}
-            onChange={(e) => setSourceUrl(e.target.value)}
-            placeholder="https://..."
-          />
-          {warning && (
-            <p className="text-sm text-[var(--color-kunyit)]">{warning}</p>
-          )}
-          <div>
-            <Button type="submit" disabled={pending}>
-              {pending ? "Mengirim..." : parentId ? "Kirim balasan" : "Kirim komentar"}
-            </Button>
-          </div>
-        </form>
+      {email && !compact && (
+        <Input
+          label="Email Anda (opsional)"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="email@contoh.id"
+          className="max-w-md"
+        />
       )}
-    </>
+      <Textarea
+        label={parentId ? "Balas komentar ini" : "Tulis balasan"}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="Sampaikan argumen Anda. Tanpa dehumanisasi."
+        rows={compact ? 3 : 5}
+        error={error ?? undefined}
+      />
+      <Input
+        label="Sumber (opsional, tapi disarankan untuk klaim faktual)"
+        type="url"
+        value={sourceUrl}
+        onChange={(e) => setSourceUrl(e.target.value)}
+        placeholder="https://..."
+      />
+      {warning && (
+        <p className="text-sm text-[var(--color-kunyit)]">{warning}</p>
+      )}
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Mengirim..." : parentId ? "Kirim balasan" : "Kirim komentar"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
