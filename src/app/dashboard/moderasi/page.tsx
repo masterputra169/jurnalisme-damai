@@ -150,7 +150,7 @@ export default async function ModerasiPage() {
                   {r.status}
                 </Badge>
                 <span className="font-body text-sm">
-                  Laporan oleh {r.reporter.name} atas komentar {r.reply.author.name}
+                  Laporan oleh {r.reporter.name} atas komentar {r.reply.author?.name ?? "Anonymous"}
                 </span>
                 <span className="font-mono text-[11px] text-[var(--color-ink)]/60">
                   · {formatTanggal(r.createdAt)}
