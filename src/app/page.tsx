@@ -26,9 +26,9 @@ export default async function Home() {
     .slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-6xl px-6">
+    <main className="mx-auto max-w-6xl px-6 anyaman-bg">
       {/* HERO — editorial lead story */}
-      <section className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16 pt-16 pb-16">
+      <section className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16 pt-16 pb-16 relative z-10">
         <article className="flex flex-col gap-5">
           <div className="flex items-center gap-3">
             <Badge tone="tarum">{hero.category.name}</Badge>
@@ -114,7 +114,7 @@ export default async function Home() {
 
       {/* GRID BERITA + SIDEBAR */}
       <ScrollReveal className="mt-16">
-        <section className="grid gap-12 lg:grid-cols-[2fr_1fr] pb-20">
+        <section className="grid gap-12 lg:grid-cols-[2fr_1fr] pb-20 relative z-10">
           <div>
             <header className="flex items-end justify-between mb-8">
               <div>
@@ -142,7 +142,7 @@ export default async function Home() {
               ))}
             </div>
           </div>
-          <aside className="lg:pl-8 lg:border-l lg:border-[var(--color-line)]">
+          <aside className="lg:pl-8 lg:border-l lg:border-[var(--color-line)] grid-bg">
             <h2 className="font-display text-[18px] mb-6">
               Kategori
             </h2>
