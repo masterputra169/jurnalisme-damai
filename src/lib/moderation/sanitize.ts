@@ -10,8 +10,7 @@ export function sanitizeHtml(input: string): string {
     allowedAttributes: {
       "*": ALLOWED_ATTR,
     },
-    allowProtocolTags: ["http", "https", "mailto"],
-    disallowedTagsMode: "discard",
+    allowedSchemes: ["http", "https", "mailto"],
   });
 }
 
