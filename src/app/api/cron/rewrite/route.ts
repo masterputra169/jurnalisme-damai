@@ -129,7 +129,10 @@ TUGAS:
       .replace(/^#{1,6}\s+/gm, '')
       .replace(/—/g, ', ')
       .replace(/–/g, ', ')
-      .replace(/\s+/g, ' ')
+      .split('\n')
+      .map(line => line.replace(/\s+/g, ' ').trim())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
 
     return cleaned.length > 100 ? cleaned : null;

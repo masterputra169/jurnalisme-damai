@@ -425,7 +425,10 @@ async function rewriteArticle(title: string, description: string, sourceUrl: str
       .replace(/^#{1,6}\s+/gm, '') // headings
       .replace(/—/g, ', ')        // em-dash → comma
       .replace(/–/g, ', ')        // en-dash → comma
-      .replace(/\s+/g, ' ')       // collapse extra whitespace
+      .split('\n')                // process line by line
+      .map(line => line.replace(/\s+/g, ' ').trim())  // collapse spaces per line
+      .join('\n')                 // rejoin with newlines
+      .replace(/\n{3,}/g, '\n\n') // max 1 blank line between paragraphs
       .trim();
 
     if (!cleaned || cleaned.length < 100) {

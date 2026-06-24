@@ -54,53 +54,56 @@ export function ReplyForm({
     });
   };
 
-  if (!email) {
-    return (
-      <div className="border border-[var(--color-line)] p-4 text-sm">
-        <p className="font-body text-[var(--color-ink)]/85">
-          Untuk membalas, masukkan email akun Anda (sesuai yang didaftarkan
-          saat seed). Untuk demo:{" "}
-          <code className="font-mono text-xs">pembaca@anyaman.id</code> atau{" "}
-          <code className="font-mono text-xs">daniel@anyaman.id</code>.
-        </p>
-        <Input
-          label="Email Anda"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="email@contoh.id"
-          className="mt-3 max-w-md"
-        />
-      </div>
-    );
-  }
+  const isEmailSet = email.length > 0;
 
   return (
-    <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${compact ? "mt-3" : ""}`}>
-      <Textarea
-        label={parentId ? "Balas komentar ini" : "Tulis balasan"}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Sampaikan argumen Anda. Tanpa dehumanisasi."
-        rows={compact ? 3 : 5}
-        error={error ?? undefined}
-      />
-      <Input
-        label="Sumber (opsional, tapi disarankan untuk klaim faktual)"
-        type="url"
-        value={sourceUrl}
-        onChange={(e) => setSourceUrl(e.target.value)}
-        placeholder="https://..."
-      />
-      {warning && (
-        <p className="text-sm text-[var(--color-kunyit)]">{warning}</p>
+    <>
+      {!isEmailSet && (
+        <div className="border border-[var(--color-line)] p-4 text-sm">
+          <p className="font-body text-[var(--color-ink)]/85">
+            Untuk membalas, masukkan email akun Anda (sesuai yang didaftarkan
+            saat seed). Untuk demo:{" "}
+            <code className="font-mono text-xs">pembaca@anyaman.id</code> atau{" "}
+            <code className="font-mono text-xs">daniel@anyaman.id</code>.
+          </p>
+          <Input
+            label="Email Anda"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@contoh.id"
+            className="mt-3 max-w-md"
+          />
+        </div>
       )}
-      <div>
-        <Button type="submit" disabled={pending}>
-          {pending ? "Mengirim..." : parentId ? "Kirim balasan" : "Kirim komentar"}
-        </Button>
-      </div>
-    </form>
+      {isEmailSet && (
+        <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${compact ? "mt-3" : ""}`}>
+          <Textarea
+            label={parentId ? "Balas komentar ini" : "Tulis balasan"}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Sampaikan argumen Anda. Tanpa dehumanisasi."
+            rows={compact ? 3 : 5}
+            error={error ?? undefined}
+          />
+          <Input
+            label="Sumber (opsional, tapi disarankan untuk klaim faktual)"
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://..."
+          />
+          {warning && (
+            <p className="text-sm text-[var(--color-kunyit)]">{warning}</p>
+          )}
+          <div>
+            <Button type="submit" disabled={pending}>
+              {pending ? "Mengirim..." : parentId ? "Kirim balasan" : "Kirim komentar"}
+            </Button>
+          </div>
+        </form>
+      )}
+    </>
   );
 }
 
