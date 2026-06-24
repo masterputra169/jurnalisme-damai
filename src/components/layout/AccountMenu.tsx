@@ -8,7 +8,7 @@ export async function AccountMenu() {
     return (
       <Link
         href="/login"
-        className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink)] hover:text-[var(--color-tarum)] transition-colors"
+        className="relative font-mono text-xs uppercase tracking-wider text-[var(--color-ink)] hover:text-[var(--color-tarum)] transition-colors after:absolute after:bottom-[-2px] after:left-0 after:h-px after:w-0 after:bg-[var(--color-tarum)] after:transition-[width] after:duration-300 hover:after:w-full"
       >
         Masuk
       </Link>
