@@ -30,7 +30,7 @@ export function needsFactSource(content: string): boolean {
 export const FlagReplySchema = z.object({
   replyId: z.string().min(1),
   reason: z.string().min(5, "Alasan minimal 5 karakter").max(500),
-  reporterEmail: z.string().email(),
+  reporterEmail: z.string().email().optional().or(z.literal("")),
 });
 
 export type FlagReplyInput = z.infer<typeof FlagReplySchema>;
