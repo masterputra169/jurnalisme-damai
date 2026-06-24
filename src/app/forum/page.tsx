@@ -5,7 +5,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { getAllThreads } from "@/lib/forum";
 import { formatTanggal } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function ForumIndexPage() {
   const threads = await getAllThreads();

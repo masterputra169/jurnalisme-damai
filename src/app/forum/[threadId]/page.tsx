@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return { title: data.thread.title };
 }
 
-export const dynamic = "force-dynamic"; // polling ringan untuk reply baru
+export const revalidate = 15; // cache 15s, cukup untuk reply baru
 
 export default async function ThreadPage({ params }: PageProps) {
   const { threadId } = await params;
