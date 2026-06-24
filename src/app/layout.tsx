@@ -8,14 +8,14 @@ import { WebVitalsReporter } from "@/components/layout/WebVitalsReporter";
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   weight: ["400", "600", "700"],
 });
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
@@ -23,7 +23,7 @@ const newsreader = Newsreader({
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   weight: ["400", "500"],
 });
 

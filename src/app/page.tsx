@@ -8,7 +8,7 @@ import { formatTanggal } from "@/lib/format";
 export const revalidate = 60;
 
 export default async function Home() {
-  const articles = await getPublishedArticles(20);
+  const articles = await getPublishedArticles(10);
   if (articles.length === 0) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-16">
