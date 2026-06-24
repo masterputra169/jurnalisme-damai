@@ -50,7 +50,7 @@ function ReplyNodeView({
   return (
     <article
       className={`pl-${Math.min(depth, MAX_DEPTH) * 4} relative`}
-      aria-label={`Komentar oleh ${node.author.name}`}
+      aria-label={`Komentar oleh ${node.author?.name ?? "Anonymous"}`}
     >
       {/* motif anyam indentasi — satu-satunya tempat motif anyam dipakai untuk reply,
           sesuai DESIGN.md §2: nested reply secara harfiah adalah jalinan suara. */}
