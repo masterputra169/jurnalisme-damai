@@ -340,7 +340,7 @@ Balas HANYA dengan slug kategori (misal: "politik"), tanpa penjelasan tambahan.`
     // Validate that the AI returned a valid category
     const isValid = VALID_CATEGORIES.some((c) => c.slug === slug);
     if (!isValid) {
-      console.warn(`[RSS AI] Invalid category returned: "${slug}", falling back to keywords`);
+      console.warn(`[RSS AI] Invalid category returned: "${slug}" (raw: "${content}") for "${title}", falling back to keywords`);
       return null;
     }
 
