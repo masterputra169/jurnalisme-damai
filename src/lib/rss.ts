@@ -569,11 +569,13 @@ export async function fetchAndImportFeeds(): Promise<{
           body = truncate(plainContent, 2000);
         }
 
+        const title = item.title!;
+
         const created = await prisma.$transaction(async (tx) => {
           const article = await tx.article.create({
             data: {
               slug,
-              title: item.title,
+              title,
               dek,
               body,
               status: "PUBLISHED",
@@ -588,7 +590,7 @@ export async function fetchAndImportFeeds(): Promise<{
 
           await tx.thread.create({
             data: {
-              title: `Diskusi: ${item.title}`,
+              title: `Diskusi: ${title}`,
               articleId: article.id,
             },
           });
