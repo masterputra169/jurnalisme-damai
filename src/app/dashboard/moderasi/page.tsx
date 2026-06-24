@@ -101,7 +101,7 @@ export default async function ModerasiPage() {
                 </p>
                 <article className="bg-[var(--color-paper)] border-l-2 border-[var(--color-waspada)] pl-4 py-2 mb-4">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60 mb-1">
-                    Komentar yang dilaporkan — oleh {r.reply.author.name}
+                    Komentar yang dilaporkan — oleh {r.reply.author?.name ?? "Anonymous"}
                   </p>
                   <div
                     className="font-body text-[15px] [&_a]:text-[var(--color-tarum)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-line)] [&_blockquote]:pl-3 [&_blockquote]:italic"
