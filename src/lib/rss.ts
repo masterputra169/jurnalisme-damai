@@ -569,23 +569,34 @@ export async function fetchAndImportFeeds(): Promise<{
           body = truncate(plainContent, 2000);
         }
 
-        await prisma.article.create({
-          data: {
-            slug,
-            title: item.title,
-            dek,
-            body,
-            status: "PUBLISHED",
-            authorId,
-            categoryId: category.id,
-            publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
-            sourceUrl: item.link,
-            sourceName: feed.name,
-            isSyndicated: true,
-          },
+        const created = await prisma.$transaction(async (tx) => {
+          const article = await tx.article.create({
+            data: {
+              slug,
+              title: item.title,
+              dek,
+              body,
+              status: "PUBLISHED",
+              authorId,
+              categoryId: category.id,
+              publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
+              sourceUrl: item.link,
+              sourceName: feed.name,
+              isSyndicated: true,
+            },
+          });
+
+          await tx.thread.create({
+            data: {
+              title: `Diskusi: ${item.title}`,
+              articleId: article.id,
+            },
+          });
+
+          return article;
         });
 
-        imported++;
+        if (created) imported++;
       }
     } catch (err) {
       errors.push(`${feed.name}: ${(err as Error).message}`);

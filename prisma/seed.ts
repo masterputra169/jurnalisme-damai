@@ -298,13 +298,16 @@ Tantangan terbesar program ini: keberlanjutan. Kedua posisi ini dibiayai dari si
     articles.push(created);
   }
 
-  // THREAD — 3 thread (2 terhubung artikel, 1 bebas)
+  // THREAD — all articles get a thread + 1 free discussion
+  const articleWithThreadIds = new Set<string>();
+
   const thread1 = await prisma.thread.create({
     data: {
       title: "Diskusi: apakah &lsquo;kesetaraan dalam perbedaan&rsquo; menggantikan toleransi?",
       articleId: articles[1].id, // toleransi-vs-keadilan
     },
   });
+  articleWithThreadIds.add(articles[1].id);
 
   const thread2 = await prisma.thread.create({
     data: {
@@ -312,6 +315,19 @@ Tantangan terbesar program ini: keberlanjutan. Kedua posisi ini dibiayai dari si
       articleId: articles[5].id, // kontroversi-penamaan-kawasan
     },
   });
+  articleWithThreadIds.add(articles[5].id);
+
+  // Threads for remaining articles (no replies in seed)
+  for (const article of articles) {
+    if (!articleWithThreadIds.has(article.id)) {
+      await prisma.thread.create({
+        data: {
+          title: `Diskusi: ${article.title}`,
+          articleId: article.id,
+        },
+      });
+    }
+  }
 
   const thread3 = await prisma.thread.create({
     data: {

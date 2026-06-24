@@ -7,6 +7,7 @@ import { BalancedViewpointBox } from "@/components/artikel/BalancedViewpointBox"
 import { NewsArticleJsonLd } from "@/components/artikel/NewsArticleJsonLd";
 import { getArticleBySlug } from "@/lib/articles";
 import { formatTanggal } from "@/lib/format";
+import { ensureThreadForArticle } from "@/actions/forum";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -35,6 +36,16 @@ export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article || article.status !== "PUBLISHED") notFound();
+
+  // Ensure thread exists — lazy creation for articles without one
+  let articleThread = article.thread;
+  if (!articleThread) {
+    const result = await ensureThreadForArticle(article.id, article.title, article.slug);
+    if (result.ok) {
+      const fresh = await getArticleBySlug(slug);
+      articleThread = fresh?.thread ?? null;
+    }
+  }
 
   const paragraphs = article.body.split("\n\n");
 
@@ -130,7 +141,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </aside>
       </div>
 
-      {article.thread && (
+      {articleThread && (
         <section
           id="diskusi"
           className="mt-16 pt-8 border-t border-[var(--color-line)]"
@@ -146,12 +157,12 @@ export default async function ArticlePage({ params }: PageProps) {
             tidak harus login untuk membaca — login hanya untuk membalas.
           </p>
           <div className="mt-6 flex items-center gap-4 font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink)]/60">
-            <span>{article.thread._count.replies} balasan</span>
+            <span>{articleThread._count.replies} balasan</span>
             <span aria-hidden>·</span>
             <span>3 jenis reaksi, bukan like/dislike</span>
           </div>
           <Link
-            href={`/forum/${article.thread.id}`}
+            href={`/forum/${articleThread.id}`}
             className="inline-block mt-4 font-mono text-sm uppercase tracking-wider text-[var(--color-giri)] hover:underline underline-offset-4 transition-colors"
           >
             Masuk diskusi →
