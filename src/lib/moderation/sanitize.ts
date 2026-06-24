@@ -1,13 +1,17 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitize from "sanitize-html";
 
 // Whitelist HTML minimal — lihat ARCHITECTURE.md §7
 const ALLOWED_TAGS = ["p", "br", "strong", "em", "b", "i", "a", "blockquote", "code", "ul", "ol", "li"];
+const ALLOWED_ATTR = ["href", "rel", "target"];
 
 export function sanitizeHtml(input: string): string {
-  return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR: ["href", "rel", "target"],
-    ALLOW_DATA_ATTR: false,
+  return sanitize(input, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: {
+      "*": ALLOWED_ATTR,
+    },
+    allowProtocolTags: ["http", "https", "mailto"],
+    disallowedTagsMode: "discard",
   });
 }
 
