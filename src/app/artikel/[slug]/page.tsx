@@ -7,7 +7,7 @@ import { BalancedViewpointBox } from "@/components/artikel/BalancedViewpointBox"
 import { NewsArticleJsonLd } from "@/components/artikel/NewsArticleJsonLd";
 import { getArticleBySlug } from "@/lib/articles";
 import { formatTanggal } from "@/lib/format";
-import { ensureThreadForArticle } from "@/actions/forum";
+import { ensureThreadForArticle } from "@/actions/threads";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
