@@ -331,12 +331,11 @@ Balas HANYA dengan slug kategori (misal: "politik"), tanpa penjelasan tambahan.`
     const choices = data.choices as Array<{ message: { content: string } }> | undefined;
     const content = choices?.[0]?.message?.content?.trim().toLowerCase() || "";
 
-    // Strip any quotes, backticks, or whitespace
+    // Strip any quotes, backticks, whitespace, or non-category characters
     const slug = content
       .trim()
       .toLowerCase()
-      .replace(/^["']+|["']+$/g, "")
-      .replace(/^`+|`+$/g, "");
+      .replace(/[^a-z0-9-]/g, "");
 
     // Validate that the AI returned a valid category
     const isValid = VALID_CATEGORIES.some((c) => c.slug === slug);
