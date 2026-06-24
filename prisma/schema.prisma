@@ -138,11 +138,11 @@ model Reply {
 model Reaction {
   id        String   @id @default(cuid())
   replyId   String
-  userId    String
+  userId    String?
   type      ReactionType
 
   reply     Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@unique([replyId, userId, type])
 }
@@ -150,11 +150,11 @@ model Reaction {
 model Report {
   id          String   @id @default(cuid())
   replyId     String
-  reporterId  String
+  reporterId  String?
   reason      String
   status      ReportStatus  @default(PENDING)
   createdAt   DateTime @default(now())
 
   reply       Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
-  reporter    User     @relation(fields: [reporterId], references: [id])
+  reporter    User?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
 }

@@ -116,11 +116,10 @@ interface FlagButtonProps {
   defaultEmail?: string;
 }
 
-export function FlagButton({ replyId, defaultEmail = "" }: FlagButtonProps) {
+export function FlagButton({ replyId }: FlagButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
-  const [email, setEmail] = useState(defaultEmail);
   const [status, setStatus] = useState<"idle" | "ok" | "err">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -129,7 +128,7 @@ export function FlagButton({ replyId, defaultEmail = "" }: FlagButtonProps) {
     e.preventDefault();
     setErrorMsg(null);
     startTransition(async () => {
-      const result = await flagReply({ replyId, reason, reporterEmail: email });
+      const result = await flagReply({ replyId, reason, reporterEmail: "" });
       if (!result.ok) {
         setErrorMsg(result.error);
         setStatus("err");
@@ -156,15 +155,6 @@ export function FlagButton({ replyId, defaultEmail = "" }: FlagButtonProps) {
           onSubmit={handleSubmit}
           className="mt-2 p-3 border border-[var(--color-line)] flex flex-col gap-2 max-w-md"
         >
-          {!email && (
-            <Input
-              label="Email Anda"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@contoh.id"
-            />
-          )}
           <Textarea
             label="Alasan pelaporan"
             value={reason}

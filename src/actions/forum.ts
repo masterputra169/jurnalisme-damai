@@ -81,16 +81,21 @@ export async function flagReply(input: FlagReplyInput): Promise<ActionResult> {
   }
   const data = parsed.data;
 
-  const reporter = await prisma.user.findUnique({ where: { email: data.reporterEmail } });
-  if (!reporter) return { ok: false, error: "Akun tidak ditemukan." };
-
   const reply = await prisma.reply.findUnique({ where: { id: data.replyId } });
   if (!reply) return { ok: false, error: "Komentar tidak ditemukan." };
+
+  // Anonymous or logged in
+  let reporterId: string | null = null;
+  if (data.reporterEmail && data.reporterEmail.trim() !== "") {
+    const reporter = await prisma.user.findUnique({ where: { email: data.reporterEmail } });
+    if (!reporter) return { ok: false, error: "Akun tidak ditemukan." };
+    reporterId = reporter.id;
+  }
 
   await prisma.report.create({
     data: {
       replyId: data.replyId,
-      reporterId: reporter.id,
+      reporterId,
       reason: data.reason,
       status: "PENDING",
     },
@@ -113,6 +118,21 @@ export async function toggleReaction(
   if (!REACTION_TYPES.includes(type)) {
     return { ok: false, error: "Jenis reaksi tidak valid." };
   }
+
+  // Anonymous reactions — just increment count, no toggle
+  const isAnonymous = !userEmail || userEmail.trim() === "";
+
+  if (isAnonymous) {
+    // Anonymous: just add a reaction (no toggle, no tracking)
+    await prisma.reaction.create({
+      data: { replyId, userId: null, type },
+    });
+    const count = await prisma.reaction.count({ where: { replyId, type } });
+    const reply = await prisma.reply.findUnique({ where: { id: replyId } });
+    if (reply) revalidatePath(`/forum/${reply.threadId}`);
+    return { ok: true, data: { active: true, count } };
+  }
+
   const user = await prisma.user.findUnique({ where: { email: userEmail } });
   if (!user) return { ok: false, error: "Akun tidak ditemukan." };
 

@@ -6,7 +6,7 @@ import { toggleReaction } from "@/actions/forum";
 interface ReactionBarProps {
   replyId: string;
   initialCounts: Record<string, number>;
-  userEmail: string;
+  userEmail?: string;
 }
 
 const REACTIONS = [
@@ -29,7 +29,7 @@ export function ReactionBar({ replyId, initialCounts, userEmail }: ReactionBarPr
     setActive((a) => ({ ...a, [type]: !a[type] }));
 
     startTransition(async () => {
-      const result = await toggleReaction(replyId, userEmail, type as never);
+      const result = await toggleReaction(replyId, userEmail ?? "", type as never);
       if (!result.ok) {
         // Rollback
         setCounts((c) => ({ ...c, [type]: (c[type] ?? 0) + (wasActive ? 1 : -1) }));
