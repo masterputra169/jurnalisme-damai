@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/actions/auth";
-import { LogoutButton } from "./LogoutButton";
+import { AccountDropdown } from "./AccountDropdown";
 
 export async function AccountMenu() {
   const user = await getCurrentUser();
@@ -18,29 +18,11 @@ export async function AccountMenu() {
   const isStaff = user.role === "EDITOR" || user.role === "CONTRIBUTOR";
 
   return (
-    <div className="flex items-center gap-6 font-mono text-xs uppercase tracking-wider">
-      <span className="text-[var(--color-ink)]/80 hidden sm:inline">
-        {user.name}
-      </span>
-      <span className="text-[var(--color-ink)]/40 hidden sm:inline">·</span>
-      <span className="text-[var(--color-kunyit)]">{user.role}</span>
-      {isStaff && (
-        <Link
-          href="/dashboard/artikel"
-          className="text-[var(--color-ink)] hover:text-[var(--color-tarum)] transition-colors"
-        >
-          Dashboard
-        </Link>
-      )}
-      {user.role === "EDITOR" && (
-        <Link
-          href="/dashboard/moderasi"
-          className="text-[var(--color-waspada)] hover:underline underline-offset-2"
-        >
-          Moderasi
-        </Link>
-      )}
-      <LogoutButton />
-    </div>
+    <AccountDropdown
+      userName={user.name}
+      userRole={user.role}
+      isStaff={isStaff}
+      isEditor={user.role === "EDITOR"}
+    />
   );
 }
