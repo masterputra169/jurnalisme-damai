@@ -149,6 +149,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     "teknologi", "sains", "ilmu pengetahuan", "riset", "penelitian",
     "laboratorium", "peneliti", "ilmuwan", "dosen peneliti", "publikasi",
     "komputer", "laptop", "smartphone", "gadget", "android", "ios",
+    "ponsel", "hp ", "handphone",
     "software", "hardware", "aplikasi", "aplikasi mobile", "mobile app",
     "artificial intelligence", "ai", "machine learning", "deep learning",
     "chatgpt", "generative ai", "llm", "large language model",
