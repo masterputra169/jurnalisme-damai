@@ -56,7 +56,7 @@ export default async function ArticlePage({ params }: PageProps) {
         dek={article.dek}
         publishedAt={article.publishedAt ?? article.createdAt}
         authorName={article.author.name}
-        url={`/artikel/${article.slug}`}
+        slug={article.slug}
       />
 
       <div className="grid gap-12 lg:grid-cols-[1fr_280px]">

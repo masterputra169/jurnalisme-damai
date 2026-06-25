@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   description:
     "Portal berita dengan pendekatan jurnalisme damai dan forum diskusi yang mendorong argumentasi kritis tanpa dehumanisasi.",
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://jurnalisme-damai.vercel.app"),
 };
 
 export default function RootLayout({

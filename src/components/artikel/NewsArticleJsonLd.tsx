@@ -3,16 +3,21 @@ interface NewsArticleJsonLdProps {
   dek: string;
   publishedAt: Date;
   authorName: string;
-  url: string;
+  slug: string;
 }
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://jurnalisme-damai.vercel.app";
 
 export function NewsArticleJsonLd({
   title,
   dek,
   publishedAt,
   authorName,
-  url,
+  slug,
 }: NewsArticleJsonLdProps) {
+  const absoluteUrl = `${SITE_URL}/artikel/${slug}`;
+
   const json = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -24,9 +29,10 @@ export function NewsArticleJsonLd({
       "@type": "Organization",
       name: "Anyaman",
     },
+    url: absoluteUrl,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": url,
+      "@id": absoluteUrl,
     },
   };
 
