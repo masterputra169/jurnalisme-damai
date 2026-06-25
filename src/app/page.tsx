@@ -161,6 +161,11 @@ export default async function Home() {
                 { slug: "internasional", label: "Internasional" },
                 { slug: "klarifikasi-cek-fakta", label: "Klarifikasi / Cek Fakta" },
                 { slug: "opini", label: "Opini" },
+                { slug: "infrastruktur", label: "Infrastruktur & Transportasi" },
+                { slug: "otomotif", label: "Otomotif" },
+                { slug: "properti", label: "Properti" },
+                { slug: "wisata-kuliner", label: "Wisata & Kuliner" },
+                { slug: "daerah", label: "Daerah" },
               ].map((cat) => (
                 <li key={cat.slug}>
                   <Link
