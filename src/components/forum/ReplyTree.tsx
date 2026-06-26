@@ -16,6 +16,7 @@ interface ReplyTreeProps {
 }
 
 const MAX_DEPTH = 5;
+const INDENT_PX = 32;
 
 const ACCENT: string[] = [
   "var(--color-tarum)",
@@ -25,7 +26,7 @@ const ACCENT: string[] = [
   "var(--color-giri)",
 ];
 
-export function ReplyTree({ nodes, threadId, userEmail, depth = 0, parentAuthor }: ReplyTreeProps) {
+export function ReplyTree({ nodes, threadId, userEmail, depth = 0 }: ReplyTreeProps) {
   return (
     <div className={depth === 0 ? "space-y-6" : "mt-3 space-y-3"}>
       {nodes.map((node) => (
@@ -64,12 +65,17 @@ function ReplyNodeView({
   const effectiveDepth = Math.min(depth, MAX_DEPTH);
   const accent = ACCENT[effectiveDepth % ACCENT.length];
   const isNested = depth > 0;
+  const indentLeft = isNested ? effectiveDepth * INDENT_PX : 0;
 
   return (
     <div
       style={
         isNested
-          ? { borderLeft: `3px solid ${accent}`, paddingLeft: "20px" }
+          ? {
+              marginLeft: `${INDENT_PX}px`,
+              borderLeft: `3px solid ${accent}`,
+              paddingLeft: "16px",
+            }
           : undefined
       }
     >
@@ -79,7 +85,7 @@ function ReplyNodeView({
           "group relative transition-colors",
           depth === 0
             ? "border border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-ink)]/20"
-            : "rounded-r-sm",
+            : "",
         ].join(" ")}
         aria-label={`Komentar oleh ${node.author?.name ?? "Anonim"}`}
       >
@@ -91,11 +97,11 @@ function ReplyNodeView({
           />
         )}
 
-        <div className={depth === 0 ? "pl-5 pr-4 py-5" : "py-3 px-3"}>
+        <div className={depth === 0 ? "pl-5 pr-4 py-5" : "py-3"}>
           {/* Label "membalas [nama]" — untuk nested */}
           {isNested && (
             <p className="font-mono text-[9px] uppercase tracking-wider text-[var(--color-ink)]/35 mb-2">
-              ↳ membalas {node.author?.name ?? "anonim"}&rsquo;s komentar
+              ↳ membalas komentar ini
             </p>
           )}
 
@@ -163,7 +169,8 @@ function ReplyNodeView({
 
           {/* Konten */}
           {node.isHidden ? (
-            <p className="font-body italic text-[var(--color-ink)]/35 mb-2"
+            <p
+              className="font-body italic text-[var(--color-ink)]/35 mb-2"
               style={{ fontSize: isNested ? "13px" : "14px", paddingLeft: isNested ? "33px" : "43px" }}
             >
               Komentar ini disembunyikan oleh moderator.
@@ -186,7 +193,8 @@ function ReplyNodeView({
 
           {/* Sumber */}
           {node.sourceUrl && !node.isHidden && (
-            <p className="font-mono text-[10px] mt-1 mb-2 text-[var(--color-ink)]/40"
+            <p
+              className="font-mono text-[10px] mt-1 mb-2 text-[var(--color-ink)]/40"
               style={{ paddingLeft: isNested ? "33px" : "43px" }}
             >
               Sumber:{" "}
@@ -202,7 +210,8 @@ function ReplyNodeView({
           )}
 
           {/* Action row */}
-          <div className="flex items-center flex-wrap gap-2"
+          <div
+            className="flex items-center flex-wrap gap-2"
             style={{ paddingLeft: isNested ? "33px" : "43px" }}
           >
             <ReactionBar
@@ -229,7 +238,8 @@ function ReplyNodeView({
 
           {/* Inline reply form */}
           {showReply && (
-            <div className="mt-3 pt-3 border-t border-[var(--color-line)]/40"
+            <div
+              className="mt-3 pt-3 border-t border-[var(--color-line)]/40"
               style={{ paddingLeft: isNested ? "33px" : "43px" }}
             >
               <ReplyForm
