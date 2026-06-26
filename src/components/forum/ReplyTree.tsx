@@ -15,9 +15,9 @@ interface ReplyTreeProps {
 }
 
 const MAX_DEPTH = 5;
-const INDENT_PX = 20;
 
-const DEPTH_COLORS = [
+// Warna aksen per level kedalaman — bergantian tarum/giri
+const ACCENT: string[] = [
   "var(--color-tarum)",
   "var(--color-giri)",
   "var(--color-waspada)",
@@ -27,18 +27,17 @@ const DEPTH_COLORS = [
 
 export function ReplyTree({ nodes, threadId, userEmail, depth = 0 }: ReplyTreeProps) {
   return (
-    <ul className="space-y-0">
+    <div className={depth === 0 ? "space-y-6" : "mt-4 space-y-4"}>
       {nodes.map((node) => (
-        <li key={node.id}>
-          <ReplyNodeView
-            node={node}
-            threadId={threadId}
-            userEmail={userEmail}
-            depth={depth}
-          />
-        </li>
+        <ReplyNodeView
+          key={node.id}
+          node={node}
+          threadId={threadId}
+          userEmail={userEmail}
+          depth={depth}
+        />
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -54,6 +53,7 @@ function ReplyNodeView({
   depth: number;
 }) {
   const [showReply, setShowReply] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const counts: Record<string, number> = {};
   for (const r of node.reactions) {
@@ -62,114 +62,150 @@ function ReplyNodeView({
 
   const hasSource = !!node.sourceUrl;
   const effectiveDepth = Math.min(depth, MAX_DEPTH);
-  const borderColor = DEPTH_COLORS[effectiveDepth % DEPTH_COLORS.length];
-  const indentLeft = effectiveDepth * INDENT_PX;
+  const accent = ACCENT[effectiveDepth % ACCENT.length];
+  const isNested = depth > 0;
 
   return (
-    <article aria-label={`Komentar oleh ${node.author?.name ?? "Anonim"}`}>
-      {/* Main comment card */}
-      <div
-        className="border-l-2 py-4 pr-2 transition-colors"
-        style={{
-          marginLeft: `${indentLeft}px`,
-          borderColor,
-          paddingLeft: "16px",
-        }}
+    <div
+      style={isNested ? { borderLeft: `2px solid ${accent}`, paddingLeft: "16px" } : undefined}
+    >
+      {/* Komentar utama */}
+      <article
+        className={[
+          "group relative",
+          depth === 0
+            ? "border border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-ink)]/20 transition-colors"
+            : "",
+        ].join(" ")}
+        aria-label={`Komentar oleh ${node.author?.name ?? "Anonim"}`}
       >
-        {/* Header */}
-        <header className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className="font-display text-[13px] font-semibold tracking-tight">
-            {node.author?.name ?? "Anonim"}
-          </span>
-          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink)]/50">
-            {formatTanggalPendek(node.createdAt)}
-          </span>
-          {hasSource && (
-            <Badge tone="giri" className="text-[10px]">
-              Dengan sumber
-            </Badge>
-          )}
-          {node.isHidden && (
-            <Badge tone="waspada" className="text-[10px]">
-              Disembunyikan
-            </Badge>
-          )}
-        </header>
-
-        {/* Content */}
-        {node.isHidden ? (
-          <p className="font-body text-[14px] italic text-[var(--color-ink)]/40 mb-2">
-            Komentar ini disembunyikan oleh moderator.
-          </p>
-        ) : (
+        {/* Strip aksen kiri untuk top-level */}
+        {depth === 0 && (
           <div
-            className="font-body text-[15px] leading-relaxed text-[var(--color-ink)]/90 mb-2
-              [&_a]:text-[var(--color-tarum)] [&_a]:underline [&_a]:underline-offset-2
-              [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-line)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--color-ink)]/70
-              [&_code]:font-mono [&_code]:text-[13px] [&_code]:bg-[var(--color-line)]/40 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded-sm
-              [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
-              [&_p+p]:mt-2"
-            dangerouslySetInnerHTML={{ __html: node.content }}
+            className="absolute left-0 top-0 bottom-0 w-[3px]"
+            style={{ background: accent }}
           />
         )}
 
-        {/* Source link */}
-        {node.sourceUrl && !node.isHidden && (
-          <p className="font-mono text-[10px] mt-1 mb-2 text-[var(--color-ink)]/50">
-            Sumber:{" "}
-            <a
-              href={node.sourceUrl}
-              className="text-[var(--color-tarum)] hover:underline underline-offset-2"
-              rel="noopener noreferrer"
-              target="_blank"
+        <div className={depth === 0 ? "pl-5 pr-4 py-5" : "py-2"}>
+          {/* Header: avatar + meta */}
+          <header className="flex items-start gap-3 mb-3">
+            {/* Avatar monogram */}
+            <div
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center font-mono text-[11px] font-bold uppercase"
+              style={{ background: `${accent}22`, color: accent }}
             >
-              {node.sourceUrl}
-            </a>
-          </p>
-        )}
+              {(node.author?.name ?? "A").slice(0, 1)}
+            </div>
 
-        {/* Actions row */}
-        <div className="flex items-center flex-wrap gap-3 mt-1">
-          <ReactionBar
-            replyId={node.id}
-            initialCounts={counts}
-            userEmail={userEmail ?? ""}
-          />
-          <div className="flex items-center gap-2 ml-auto">
-            <FlagButton replyId={node.id} />
-            <button
-              type="button"
-              onClick={() => setShowReply((v) => !v)}
-              className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink)]/50 hover:text-[var(--color-giri)] transition-colors"
-              aria-expanded={showReply}
-            >
-              {showReply ? "Tutup" : "Balas"}
-            </button>
-          </div>
-        </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-display text-[14px] font-semibold leading-tight">
+                  {node.author?.name ?? "Anonim"}
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink)]/45">
+                  {formatTanggalPendek(node.createdAt)}
+                </span>
+                {hasSource && <Badge tone="giri">Dengan sumber</Badge>}
+                {node.isHidden && <Badge tone="waspada">Disembunyikan</Badge>}
+              </div>
+            </div>
 
-        {/* Inline reply form */}
-        {showReply && (
-          <div className="mt-3 pt-3 border-t border-[var(--color-line)]/60">
-            <ReplyForm
-              threadId={threadId}
-              parentId={node.id}
-              defaultEmail={userEmail ?? ""}
-              compact
+            {/* Collapse toggle jika ada anak */}
+            {node.children.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setCollapsed((v) => !v)}
+                className="flex-shrink-0 font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink)]/40 hover:text-[var(--color-ink)] transition-colors"
+                aria-expanded={!collapsed}
+                title={collapsed ? "Tampilkan balasan" : "Sembunyikan balasan"}
+              >
+                {collapsed ? `+${node.children.length}` : "−"}
+              </button>
+            )}
+          </header>
+
+          {/* Konten */}
+          {node.isHidden ? (
+            <p className="font-body text-[14px] italic text-[var(--color-ink)]/35 mb-3 pl-11">
+              Komentar ini disembunyikan oleh moderator.
+            </p>
+          ) : (
+            <div
+              className="font-body text-[15px] leading-[1.7] text-[var(--color-ink)]/88 mb-3 pl-11
+                [&_a]:text-[var(--color-tarum)] [&_a]:underline [&_a]:underline-offset-2
+                [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-line)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--color-ink)]/60
+                [&_code]:font-mono [&_code]:text-[13px] [&_code]:bg-[var(--color-line)]/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
+                [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
+                [&_p+p]:mt-2"
+              dangerouslySetInnerHTML={{ __html: node.content }}
             />
-          </div>
-        )}
-      </div>
+          )}
 
-      {/* Children */}
-      {node.children.length > 0 && (
-        <ReplyTree
-          nodes={node.children}
-          threadId={threadId}
-          userEmail={userEmail}
-          depth={Math.min(depth + 1, MAX_DEPTH)}
-        />
+          {/* Sumber */}
+          {node.sourceUrl && !node.isHidden && (
+            <p className="font-mono text-[10px] mt-1 mb-3 pl-11 text-[var(--color-ink)]/45">
+              Sumber:{" "}
+              <a
+                href={node.sourceUrl}
+                className="text-[var(--color-tarum)] hover:underline underline-offset-2 break-all"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {node.sourceUrl}
+              </a>
+            </p>
+          )}
+
+          {/* Action row */}
+          <div className="flex items-center flex-wrap gap-2 pl-11">
+            <ReactionBar
+              replyId={node.id}
+              initialCounts={counts}
+              userEmail={userEmail ?? ""}
+            />
+            <div className="flex items-center gap-3 ml-auto">
+              <FlagButton replyId={node.id} />
+              <button
+                type="button"
+                onClick={() => setShowReply((v) => !v)}
+                className="font-mono text-[10px] uppercase tracking-wider px-2 py-1 border transition-colors"
+                style={{
+                  borderColor: showReply ? accent : "var(--color-line)",
+                  color: showReply ? accent : "var(--color-ink)",
+                }}
+                aria-expanded={showReply}
+              >
+                {showReply ? "Tutup" : "↩ Balas"}
+              </button>
+            </div>
+          </div>
+
+          {/* Form balas inline */}
+          {showReply && (
+            <div className="mt-4 pt-4 pl-11 border-t border-[var(--color-line)]/50">
+              <ReplyForm
+                threadId={threadId}
+                parentId={node.id}
+                defaultEmail={userEmail ?? ""}
+                compact
+              />
+            </div>
+          )}
+        </div>
+      </article>
+
+      {/* Anak-anak reply — collapsible */}
+      {!collapsed && node.children.length > 0 && (
+        <div className="mt-3">
+          <ReplyTree
+            nodes={node.children}
+            threadId={threadId}
+            userEmail={userEmail}
+            depth={Math.min(depth + 1, MAX_DEPTH)}
+          />
+        </div>
       )}
-    </article>
+    </div>
   );
 }
