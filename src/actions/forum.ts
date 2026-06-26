@@ -114,23 +114,34 @@ export async function toggleReaction(
   replyId: string,
   userEmail: string,
   type: ReactionType,
+  anonymousSessionId?: string,
 ): Promise<ActionResult<{ active: boolean; count: number }>> {
   if (!REACTION_TYPES.includes(type)) {
     return { ok: false, error: "Jenis reaksi tidak valid." };
   }
 
-  // Anonymous reactions — just increment count, no toggle
   const isAnonymous = !userEmail || userEmail.trim() === "";
 
   if (isAnonymous) {
-    // Anonymous: just add a reaction (no toggle, no tracking)
-    await prisma.reaction.create({
-      data: { replyId, userId: null, type },
+    // Anonymous: use anonymousSessionId for tracking — toggle like logged-in
+    const sessionId = anonymousSessionId || "anon";
+    const existing = await prisma.reaction.findFirst({
+      where: { replyId, anonymousSessionId: sessionId, type },
     });
+
+    if (existing) {
+      await prisma.reaction.delete({ where: { id: existing.id } });
+    } else {
+      await prisma.reaction.create({
+        data: { replyId, userId: null, anonymousSessionId: sessionId, type },
+      });
+    }
+
     const count = await prisma.reaction.count({ where: { replyId, type } });
     const reply = await prisma.reply.findUnique({ where: { id: replyId } });
     if (reply) revalidatePath(`/forum/${reply.threadId}`);
-    return { ok: true, data: { active: true, count } };
+
+    return { ok: true, data: { active: !existing, count } };
   }
 
   const user = await prisma.user.findUnique({ where: { email: userEmail } });

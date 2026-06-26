@@ -135,15 +135,17 @@ model Reply {
 }
 
 model Reaction {
-  id        String   @id @default(cuid())
-  replyId   String
-  userId    String?
-  type      ReactionType
+  id                 String   @id @default(cuid())
+  replyId            String
+  userId             String?
+  anonymousSessionId String?
+  type               ReactionType
 
   reply     Reply    @relation(fields: [replyId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@unique([replyId, userId, type])
+  @@unique([replyId, anonymousSessionId, type])
 }
 
 model Report {

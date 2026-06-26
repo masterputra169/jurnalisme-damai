@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { toggleReaction } from "@/actions/forum";
 
 interface ReactionBarProps {
@@ -15,11 +15,30 @@ const REACTIONS = [
   { type: "OTHER_PERSPECTIVE", label: "Bantu Lihat Sisi Lain", color: "var(--color-tarum)" },
 ] as const;
 
+const ANON_SESSION_KEY = "anyaman_anon_session";
+
+function getOrCreateAnonSessionId(): string {
+  if (typeof window === "undefined") return "ssr";
+  let id = localStorage.getItem(ANON_SESSION_KEY);
+  if (!id) {
+    id = `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(ANON_SESSION_KEY, id);
+  }
+  return id;
+}
+
 export function ReactionBar({ replyId, initialCounts, userEmail }: ReactionBarProps) {
   const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const [active, setActive] = useState<Record<string, boolean>>({});
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [anonSessionId, setAnonSessionId] = useState<string>("");
+
+  useEffect(() => {
+    if (!userEmail) {
+      setAnonSessionId(getOrCreateAnonSessionId());
+    }
+  }, [userEmail]);
 
   const handleClick = (type: string) => {
     setError(null);
@@ -29,7 +48,12 @@ export function ReactionBar({ replyId, initialCounts, userEmail }: ReactionBarPr
     setActive((a) => ({ ...a, [type]: !a[type] }));
 
     startTransition(async () => {
-      const result = await toggleReaction(replyId, userEmail ?? "", type as never);
+      const result = await toggleReaction(
+        replyId,
+        userEmail ?? "",
+        type as never,
+        !userEmail ? anonSessionId : undefined,
+      );
       if (!result.ok) {
         // Rollback
         setCounts((c) => ({ ...c, [type]: (c[type] ?? 0) + (wasActive ? 1 : -1) }));
