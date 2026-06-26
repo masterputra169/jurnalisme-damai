@@ -65,7 +65,6 @@ function ReplyNodeView({
   const effectiveDepth = Math.min(depth, MAX_DEPTH);
   const accent = ACCENT[effectiveDepth % ACCENT.length];
   const isNested = depth > 0;
-  const indentLeft = isNested ? effectiveDepth * INDENT_PX : 0;
 
   return (
     <div
@@ -101,7 +100,7 @@ function ReplyNodeView({
           {/* Label "membalas [nama]" — untuk nested */}
           {isNested && (
             <p className="font-mono text-[9px] uppercase tracking-wider text-[var(--color-ink)]/35 mb-2">
-              ↳ membalas komentar ini
+              Membalas komentar ini
             </p>
           )}
 
@@ -160,7 +159,7 @@ function ReplyNodeView({
                     className="w-5 h-5 flex items-center justify-center border text-[11px] leading-none"
                     style={{ borderColor: "var(--color-line)" }}
                   >
-                    −
+                    -
                   </span>
                 )}
               </button>
@@ -231,7 +230,7 @@ function ReplyNodeView({
                 }}
                 aria-expanded={showReply}
               >
-                {showReply ? "Tutup" : "↩ Balas"}
+                {showReply ? "Tutup" : "Balas"}
               </button>
             </div>
           </div>
