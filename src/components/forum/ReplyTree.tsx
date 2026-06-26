@@ -8,12 +8,13 @@ import { formatTanggalPendek } from "@/lib/format";
 interface ReplyTreeProps {
   nodes: ReplyNode[];
   threadId: string;
+  userEmail?: string;
   depth?: number;
 }
 
 const MAX_DEPTH = 5;
 
-export function ReplyTree({ nodes, threadId, depth = 0 }: ReplyTreeProps) {
+export function ReplyTree({ nodes, threadId, userEmail, depth = 0 }: ReplyTreeProps) {
   return (
     <ul className="space-y-6">
       {nodes.map((node) => (
@@ -21,6 +22,7 @@ export function ReplyTree({ nodes, threadId, depth = 0 }: ReplyTreeProps) {
           <ReplyNodeView
             node={node}
             threadId={threadId}
+            userEmail={userEmail}
             depth={depth}
           />
         </li>
@@ -32,10 +34,12 @@ export function ReplyTree({ nodes, threadId, depth = 0 }: ReplyTreeProps) {
 function ReplyNodeView({
   node,
   threadId,
+  userEmail,
   depth,
 }: {
   node: ReplyNode;
   threadId: string;
+  userEmail?: string;
   depth: number;
 }) {
   // Hitung jumlah reaksi per tipe
@@ -100,7 +104,7 @@ function ReplyNodeView({
           <ReactionBar
             replyId={node.id}
             initialCounts={counts}
-            userEmail=""
+            userEmail={userEmail ?? ""}
           />
           <FlagButton replyId={node.id} />
         </div>
@@ -120,7 +124,7 @@ function ReplyNodeView({
             Balas komentar ini
           </summary>
           <div className="mt-2">
-            <ReplyForm threadId={threadId} parentId={node.id} compact />
+            <ReplyForm threadId={threadId} parentId={node.id} defaultEmail={userEmail ?? ""} compact />
           </div>
         </details>
       </div>

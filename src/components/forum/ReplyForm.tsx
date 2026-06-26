@@ -59,9 +59,11 @@ export function ReplyForm({
     });
   };
 
+  const isLoggedIn = !!defaultEmail;
+
   return (
     <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${compact ? "mt-3" : ""}`}>
-      {!email && (
+      {!isLoggedIn && !email && (
         <p className="text-xs text-[var(--color-ink)]/60">
           Balas sebagai Anonymous. Atau{" "}
           <button
@@ -74,7 +76,7 @@ export function ReplyForm({
           untuk menampilkan nama Anda.
         </p>
       )}
-      {email && !compact && (
+      {!isLoggedIn && email && !compact && (
         <Input
           label="Email Anda (opsional)"
           type="email"

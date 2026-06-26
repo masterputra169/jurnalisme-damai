@@ -7,6 +7,7 @@ import { ReplyTree } from "@/components/forum/ReplyTree";
 import { ReplyForm } from "@/components/forum/ReplyForm";
 import { getThreadDetail } from "@/lib/forum";
 import { formatTanggal } from "@/lib/format";
+import { getCurrentUser } from "@/actions/auth";
 
 interface PageProps {
   params: Promise<{ threadId: string }>;
@@ -26,6 +27,8 @@ export default async function ThreadPage({ params }: PageProps) {
   const data = await getThreadDetail(threadId);
   if (!data) notFound();
   const { thread, roots } = data;
+  const currentUser = await getCurrentUser();
+  const userEmail = currentUser?.email ?? "";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
@@ -66,14 +69,14 @@ export default async function ThreadPage({ params }: PageProps) {
         </div>
       ) : (
         <div className="mb-12">
-          <ReplyTree nodes={roots} threadId={threadId} />
+          <ReplyTree nodes={roots} threadId={threadId} userEmail={userEmail} />
         </div>
       )}
 
       {!thread.isLocked && (
         <section className="mt-12 pt-8 border-t border-[var(--color-line)]">
           <h2 className="font-display text-[20px] mb-4">Tulis balasan</h2>
-          <ReplyForm threadId={threadId} />
+          <ReplyForm threadId={threadId} defaultEmail={userEmail} />
         </section>
       )}
     </main>
