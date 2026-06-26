@@ -1,14 +1,23 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { WeaveDivider } from "@/components/weave/WeaveDivider";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { SortBar } from "@/components/ui/SortBar";
 import { getAllThreads } from "@/lib/forum";
 import { formatTanggal } from "@/lib/format";
+import type { SortOption } from "@/lib/forum";
 
 export const revalidate = 30;
 
-export default async function ForumIndexPage() {
-  const threads = await getAllThreads();
+interface PageProps {
+  searchParams: Promise<{ sort?: string }>;
+}
+
+export default async function ForumIndexPage({ searchParams }: PageProps) {
+  const { sort } = await searchParams;
+  const sortOption: SortOption = sort === "replies" ? "replies" : "date";
+  const threads = await getAllThreads(sortOption);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -31,6 +40,12 @@ export default async function ForumIndexPage() {
           <WeaveDivider variant="giri" />
         </div>
       </ScrollReveal>
+
+      <div className="mb-6">
+        <Suspense fallback={null}>
+          <SortBar current={sortOption} />
+        </Suspense>
+      </div>
 
       {threads.length === 0 ? (
         <div className="border border-[var(--color-line)] p-8 text-center">

@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export type SortOption = "date" | "replies";
+
 export type ThreadListItem = {
   id: string;
   title: string;
@@ -9,9 +11,14 @@ export type ThreadListItem = {
   _count: { replies: number };
 };
 
-export async function getAllThreads() {
+export async function getAllThreads(sort: SortOption = "date") {
+  const orderBy =
+    sort === "replies"
+      ? { replies: { _count: "desc" as const } }
+      : { createdAt: "desc" as const };
+
   const threads = await prisma.thread.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy,
     include: {
       article: { select: { title: true, slug: true } },
       _count: { select: { replies: true } },

@@ -1,11 +1,15 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/artikel/ArticleCard";
 import { Badge } from "@/components/ui/Badge";
+import { SortBar } from "@/components/ui/SortBar";
 import { prisma } from "@/lib/prisma";
+import type { SortOption } from "@/components/ui/SortBar";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ sort?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -20,14 +24,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export const revalidate = 60;
 
-export default async function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { sort } = await searchParams;
+  const sortOption: SortOption = sort === "replies" ? "replies" : "date";
+
   const category = await prisma.category.findUnique({ where: { slug } });
   if (!category) notFound();
 
   const articles = await prisma.article.findMany({
     where: { status: "PUBLISHED", categoryId: category.id },
-    orderBy: { publishedAt: "desc" },
+    orderBy:
+      sortOption === "replies"
+        ? { thread: { replies: { _count: "desc" } } }
+        : { publishedAt: "desc" },
     include: {
       category: { select: { name: true, slug: true } },
       author: { select: { name: true } },
@@ -43,9 +53,15 @@ export default async function CategoryPage({ params }: PageProps) {
       <h1 className="font-display text-[40px] leading-tight tracking-tight mb-2">
         {category.name}
       </h1>
-      <p className="font-body text-[var(--color-ink)]/75 mb-12">
+      <p className="font-body text-[var(--color-ink)]/75 mb-8">
         {articles.length} artikel dalam kategori ini.
       </p>
+
+      <div className="mb-8">
+        <Suspense fallback={null}>
+          <SortBar current={sortOption} />
+        </Suspense>
+      </div>
 
       {articles.length === 0 ? (
         <p className="font-body text-[var(--color-ink)]/70 italic">
