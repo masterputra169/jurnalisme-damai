@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { logout } from "@/actions/auth";
 
 interface AccountDropdownProps {
   userName: string;
@@ -12,6 +14,17 @@ interface AccountDropdownProps {
 
 export function AccountDropdown({ userName, userRole, isStaff, isEditor }: AccountDropdownProps) {
   const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logout();
+      setOpen(false);
+      router.refresh();
+      router.push("/");
+    });
+  };
 
   return (
     <div className="relative">
@@ -54,14 +67,14 @@ export function AccountDropdown({ userName, userRole, isStaff, isEditor }: Accou
                   Moderasi
                 </Link>
               )}
-              <form action="/api/auth/signout" method="POST" className="block">
-                <button
-                  type="submit"
-                  className="w-full text-left px-4 py-2 text-[var(--color-ink)] hover:bg-[var(--color-paper-dark)] transition-colors border-t border-[var(--color-line)]"
-                >
-                  Keluar
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={pending}
+                className="w-full text-left px-4 py-2 text-[var(--color-ink)] hover:bg-[var(--color-paper-dark)] transition-colors border-t border-[var(--color-line)] disabled:opacity-50"
+              >
+                {pending ? "Keluar..." : "Keluar"}
+              </button>
             </div>
           </div>
         </>
